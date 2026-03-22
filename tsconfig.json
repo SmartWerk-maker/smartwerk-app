@@ -14,9 +14,7 @@
     "jsx": "react-jsx",
     "incremental": true,
     "baseUrl": ".",
-
     "types": ["vitest/globals", "node"],
-
     "paths": {
       "@/*": ["./*"],
       "@/app/*": ["app/*"],
@@ -24,15 +22,12 @@
       "@/lib/*": ["lib/*"],
       "@/hooks/*": ["app/hooks/*"],
       "@/contexts/*": ["app/contexts/*"],
+      "@/firebase": ["./firebase"],
       "@/firebase/*": ["firebase/*"],
       "@/utils/*": ["utils/*"]
     },
-
-    "plugins": [{ "name": "next" }],
-
-  
+    "plugins": [{ "name": "next" }]
   },
- 
   "include": [
     "next-env.d.ts",
     "**/*.ts",
@@ -40,6 +35,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-
   "exclude": ["node_modules"]
 }

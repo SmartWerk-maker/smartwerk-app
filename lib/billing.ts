@@ -73,5 +73,4 @@ export async function updateSubscriptionStatus(
 
   await ref.set(payload, { merge: true });
 
-  console.log("✅ Subscription updated:", payload);
 }

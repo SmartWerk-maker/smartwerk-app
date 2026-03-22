@@ -4,6 +4,7 @@ import { updateSubscriptionStatus } from "@/lib/billing";
 import Stripe from "stripe";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 // -----------------------------
 // TYPE GUARDS
@@ -45,14 +46,13 @@ export async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(
       body,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET || ""
     );
   } catch (err) {
     console.error("❌ Webhook signature error:", err);
     return new NextResponse("Invalid signature", { status: 400 });
   }
 
-  console.log("🔥 Webhook event:", event.type);
 
   // -----------------------------------------
   // SUBSCRIPTION CREATED / UPDATED
@@ -102,7 +102,6 @@ export async function POST(req: Request) {
     const sub = obj;
     const customerId = sub.customer as string;
 
-    console.log("⚠️ Subscription cancelled:", customerId);
 
     await updateSubscriptionStatus(customerId, {
       status: "canceled",

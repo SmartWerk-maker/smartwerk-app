@@ -2,7 +2,7 @@
 import { TaxRules } from "./TaxRules";
 import { TaxWarning } from "../modules/domain/warnings";
 import { TaxInput } from "./TaxInput";
-import { ExplainableAmount, Explanation } from "../types/explanationTypes";
+import { ExplainableAmount, Explanation } from "./explanationTypes";
 
 export type TaxResult = TaxResultSuccess | TaxResultError;
 
