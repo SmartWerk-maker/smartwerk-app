@@ -1,10 +1,7 @@
+import { NextResponse } from "next/server";
+
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-import {
-  const { auth, db } = await import("@/lib/firebase-admin");
- NextResponse } from "next/server";
-
 
 export async function POST(req: Request) {
   try {
@@ -14,18 +11,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing token" }, { status: 400 });
     }
 
-    // Decode Firebase token
+    const { getAdminAuth, getAdminDb } = await import("@/lib/firebase-admin");
+    const auth = getAdminAuth();
+    const db = getAdminDb();
+
     const decoded = await auth.verifyIdToken(token);
     const uid = decoded.uid;
-
-    // Load user from Firestore
     const snap = await db.collection("users").doc(uid).get();
 
     if (!snap.exists) {
-      return NextResponse.json({}, { status: 200 }); // empty profile
+      return NextResponse.json({}, { status: 200 });
     }
 
-    return NextResponse.json(snap.data());
+    return NextResponse.json(snap.data() ?? {});
   } catch (err) {
     console.error("GET PROFILE ERROR:", err);
     return NextResponse.json(

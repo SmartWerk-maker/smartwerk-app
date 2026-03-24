@@ -1,9 +1,3 @@
-// lib/billing.ts
-import { db } from "@/lib/firebase-admin";
-
-/* ------------------------------
-   USER TYPE
------------------------------- */
 export interface UserRecord {
   email: string | null;
   stripeCustomerId: string | null;
@@ -14,10 +8,10 @@ export interface UserRecord {
   } | null;
 }
 
-/* ------------------------------
-   GET USER
------------------------------- */
 export async function getUser(uid: string): Promise<UserRecord | null> {
+  const { getAdminDb } = await import("./firebase-admin");
+  const db = getAdminDb();
+
   const docSnap = await db.collection("users").doc(uid).get();
   if (!docSnap.exists) return null;
 
@@ -30,9 +24,6 @@ export async function getUser(uid: string): Promise<UserRecord | null> {
   };
 }
 
-/* ------------------------------
-   UPDATE SUBSCRIPTION STATUS
------------------------------- */
 export interface SubUpdate {
   status: string;
   current_period_end?: number | null;
@@ -43,7 +34,9 @@ export async function updateSubscriptionStatus(
   stripeCustomerId: string,
   data: SubUpdate
 ) {
-  // find Firestore user by stripeCustomerId
+  const { getAdminDb } = await import("./firebase-admin");
+  const db = getAdminDb();
+
   const snap = await db
     .collection("users")
     .where("stripeCustomerId", "==", stripeCustomerId)
@@ -51,15 +44,12 @@ export async function updateSubscriptionStatus(
     .get();
 
   if (snap.empty) {
-    console.error("❌ No user found for stripeCustomerId:", stripeCustomerId);
+    console.error("No user found for stripeCustomerId:", stripeCustomerId);
     return;
   }
 
   const ref = snap.docs[0].ref;
-
-  const isActive =
-    data.status === "active" ||
-    data.status === "trialing";
+  const isActive = data.status === "active" || data.status === "trialing";
 
   const payload = {
     plan: isActive ? "PRO" : "FREE",
@@ -72,6 +62,4 @@ export async function updateSubscriptionStatus(
   };
 
   await ref.set(payload, { merge: true });
-
-  console.log("✅ Subscription updated:", payload);
 }
