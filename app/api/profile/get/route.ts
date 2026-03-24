@@ -1,7 +1,10 @@
-import { NextResponse } from "next/server";
-
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+import {
+  const { auth, db } = await import("@/lib/firebase-admin");
+ NextResponse } from "next/server";
+
 
 export async function POST(req: Request) {
   try {
@@ -11,9 +14,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing token" }, { status: 400 });
     }
 
-    // ✅ ВАЖЛИВО — lazy import
-    const { auth, db } = await import("@/lib/firebase-admin");
-
     // Decode Firebase token
     const decoded = await auth.verifyIdToken(token);
     const uid = decoded.uid;
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     const snap = await db.collection("users").doc(uid).get();
 
     if (!snap.exists) {
-      return NextResponse.json({}, { status: 200 });
+      return NextResponse.json({}, { status: 200 }); // empty profile
     }
 
     return NextResponse.json(snap.data());

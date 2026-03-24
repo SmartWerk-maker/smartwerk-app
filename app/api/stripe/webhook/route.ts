@@ -1,4 +1,6 @@
-import { NextResponse } from "next/server";
+import {
+  const { auth, db } = await import("@/lib/firebase-admin");
+ NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { updateSubscriptionStatus } from "@/lib/billing";
 import Stripe from "stripe";

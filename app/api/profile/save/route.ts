@@ -1,5 +1,7 @@
-import { NextResponse } from "next/server";
-import { auth, db } from "@/lib/firebase-admin";
+import {
+  const { auth, db } = await import("@/lib/firebase-admin");
+ NextResponse } from "next/server";
+
 
 export async function POST(req: Request) {
   try {

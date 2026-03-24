@@ -1,7 +1,9 @@
 // app/api/stripe/create-checkout/route.ts
-import { NextResponse } from "next/server";
+import {
+  const { auth, db } = await import("@/lib/firebase-admin");
+ NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { auth } from "@/lib/firebase-admin";
+
 import { getUser } from "@/lib/billing";
 
 export async function POST(req: Request) {
