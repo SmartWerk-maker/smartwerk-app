@@ -1,29 +1,47 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
-const stripe = getStripe();
-import { updateSubscriptionStatus } from "lib/billing";
+import { updateSubscriptionStatus } from "@/lib/billing";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 function isSubscription(obj: unknown): obj is Stripe.Subscription {
-  return !!obj && typeof obj === "object" && "id" in obj && "status" in obj && "customer" in obj;
+  return (
+    !!obj &&
+    typeof obj === "object" &&
+    "id" in obj &&
+    "status" in obj &&
+    "customer" in obj
+  );
 }
 
 function hasPeriodEnd(
   sub: Stripe.Subscription
 ): sub is Stripe.Subscription & { current_period_end: number } {
-  return "current_period_end" in sub && typeof (sub as Record<string, unknown>).current_period_end === "number";
+  return (
+    "current_period_end" in sub &&
+    typeof (sub as Record<string, unknown>).current_period_end === "number"
+  );
 }
 
 export async function POST(req: Request) {
+  // ✅ ІНІЦІАЛІЗАЦІЯ ВСЕРЕДИНІ (КРИТИЧНО)
+  const stripe = getStripe();
+
+  if (!stripe) {
+    return new NextResponse("Stripe not configured", { status: 500 });
+  }
+
   const body = await req.text();
   const sig = req.headers.get("stripe-signature");
 
-  if (!sig) return new NextResponse("Missing signature", { status: 400 });
+  if (!sig) {
+    return new NextResponse("Missing signature", { status: 400 });
+  }
 
   let event: Stripe.Event;
+
   try {
     event = stripe.webhooks.constructEvent(
       body,
@@ -35,11 +53,21 @@ export async function POST(req: Request) {
     return new NextResponse("Invalid signature", { status: 400 });
   }
 
-  if (event.type === "customer.subscription.created" || event.type === "customer.subscription.updated") {
+  // ✅ subscription created / updated
+  if (
+    event.type === "customer.subscription.created" ||
+    event.type === "customer.subscription.updated"
+  ) {
     const obj = event.data.object;
-    if (!isSubscription(obj)) return new NextResponse("Bad payload", { status: 400 });
 
-    const periodEnd = hasPeriodEnd(obj) ? obj.current_period_end * 1000 : null;
+    if (!isSubscription(obj)) {
+      return new NextResponse("Bad payload", { status: 400 });
+    }
+
+    const periodEnd = hasPeriodEnd(obj)
+      ? obj.current_period_end * 1000
+      : null;
+
     await updateSubscriptionStatus(String(obj.customer), {
       status: obj.status,
       current_period_end: periodEnd,
@@ -47,9 +75,13 @@ export async function POST(req: Request) {
     });
   }
 
+  // ✅ subscription deleted
   if (event.type === "customer.subscription.deleted") {
     const obj = event.data.object;
-    if (!isSubscription(obj)) return new NextResponse("Bad payload", { status: 400 });
+
+    if (!isSubscription(obj)) {
+      return new NextResponse("Bad payload", { status: 400 });
+    }
 
     await updateSubscriptionStatus(String(obj.customer), {
       status: "canceled",

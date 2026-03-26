@@ -9,7 +9,7 @@ export function getStripe(): Stripe {
 
   if (!key) {
     console.warn("⚠️ Stripe not configured");
-    throw new Error("Stripe not configured");
+    return null;
   }
 
   stripeInstance = new Stripe(key, {
