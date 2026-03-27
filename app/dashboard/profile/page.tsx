@@ -99,16 +99,13 @@ export default function ProfilePage() {
   const { language } = useLanguage();
   const tRootRaw = useTranslation(language);
 
-if (!tRootRaw) {
-  return <div className="profile-page">Loading...</div>;
-}
-
-const tRoot = tRootRaw as {
+const tRoot = (useTranslation(language) ?? {}) as {
   profile?: ProfileI18n;
   common?: CommonI18n;
 };
-  const tProfile: ProfileI18n = tRoot?.profile ?? {};
-  const tCommon: CommonI18n = tRoot?.common ?? {};
+
+const tProfile: ProfileI18n = tRoot.profile ?? {};
+const tCommon: CommonI18n = tRoot.common ?? {};
 
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile>({});
