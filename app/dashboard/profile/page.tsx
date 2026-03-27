@@ -97,10 +97,16 @@ export default function ProfilePage() {
 
   /* ===== i18n ===== */
   const { language } = useLanguage();
-  const tRoot = useTranslation(language) as {
+  const tRootRaw = useTranslation(language);
+
+if (!tRootRaw) {
+  return <div className="profile-page">Loading...</div>;
+}
+
+const tRoot = tRootRaw as {
   profile?: ProfileI18n;
   common?: CommonI18n;
-} | null;
+};
   const tProfile: ProfileI18n = tRoot?.profile ?? {};
   const tCommon: CommonI18n = tRoot?.common ?? {};
 
