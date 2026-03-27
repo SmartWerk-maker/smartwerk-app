@@ -97,7 +97,7 @@ export default function ProfilePage() {
 
   /* ===== i18n ===== */
   const { language } = useLanguage();
-  const tRootRaw = useTranslation(language);
+ 
 
 const tRoot = (useTranslation(language) ?? {}) as {
   profile?: ProfileI18n;
