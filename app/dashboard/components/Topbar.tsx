@@ -78,24 +78,7 @@ export default function Topbar({ user, isMobile, onMenu }: TopbarProps) {
           </div>
         </div>
 
-        {/* TABS (UI only for now) */}
-        <div className="dash-top-tabs">
-          <button className="top-tab active">
-            {dictTabs.clients ?? "Clients"}
-          </button>
-          <button className="top-tab">
-            {dictTabs.invoice ?? "Invoice"}
-          </button>
-          <button className="top-tab">
-            {dictTabs.quote ?? "Quote"}
-          </button>
-          <button className="top-tab">
-            {dictTabs.contract ?? "Contract"}
-          </button>
-          <button className="top-tab">
-            {dictTabs.reminder ?? "Reminder"}
-          </button>
-        </div>
+       
       </div>
 
       {/* RIGHT */}
