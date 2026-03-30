@@ -6,6 +6,7 @@
   height: 100dvh;
 
   overflow: hidden; /* 🔥 ВАЖЛИВО */
+  overscroll-behavior: none;
 }
 
 @media (max-width: 900px) {
@@ -406,6 +407,8 @@
   z-index: 40;
 
   padding-bottom: env(safe-area-inset-bottom);
+   touch-action: pan-y;
+   will-change: transform;
 }
 
 /* MOBILE DRAWER */

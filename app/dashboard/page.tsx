@@ -53,6 +53,52 @@ export default function DashboardPage() {
     return () => window.removeEventListener("resize", detect);
   }, []);
 
+  
+
+
+/* ---------- SWIPE ---------- */
+const [touchStartX, setTouchStartX] = useState<number | null>(null);
+const [touchEndX, setTouchEndX] = useState<number | null>(null);
+
+const handleTouchStart = (e: TouchEvent) => {
+  setTouchEndX(null);
+  setTouchStartX(e.touches[0].clientX);
+};
+
+const handleTouchMove = (e: TouchEvent) => {
+  setTouchEndX(e.touches[0].clientX);
+};
+
+const handleTouchEnd = () => {
+  if (touchStartX === null || touchEndX === null) return;
+
+  const distance = touchEndX - touchStartX;
+
+  // 👉 EDGE SWIPE OPEN (тільки з лівого краю)
+  if (touchStartX < 60 && distance > 80 && isMobile) {
+    setSidebarOpen(true);
+  }
+
+  // 👉 CLOSE
+  if (distance < -80 && isMobile) {
+    setSidebarOpen(false);
+  }
+};
+
+useEffect(() => {
+  if (!isMobile) return;
+
+  window.addEventListener("touchstart", handleTouchStart);
+  window.addEventListener("touchmove", handleTouchMove);
+  window.addEventListener("touchend", handleTouchEnd);
+
+  return () => {
+    window.removeEventListener("touchstart", handleTouchStart);
+    window.removeEventListener("touchmove", handleTouchMove);
+    window.removeEventListener("touchend", handleTouchEnd);
+  };
+}, [isMobile, touchStartX, touchEndX]);
+
   /* ---------- CONTEXTS ---------- */
   const { language } = useLanguage();
   const { isDark } = useTheme();
