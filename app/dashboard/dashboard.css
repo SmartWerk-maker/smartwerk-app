@@ -3,10 +3,7 @@ html, body {
   overflow-x: hidden;
   max-width: 100%;
 }
-body {
-  overscroll-behavior-x: none;
-  touch-action: pan-y;
-}
+
 
 .dash-root {
   display: flex;
