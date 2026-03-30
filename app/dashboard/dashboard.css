@@ -6,6 +6,7 @@
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
     sans-serif;
   transition: background 0.2s ease, color 0.2s ease;
+  overflow: hidden;
 }
 
 .dash-theme-dark {
@@ -53,35 +54,84 @@
   flex-direction: column;
   gap: 12px;
   border-right: 1px solid rgba(148, 163, 184, 0.4);
-  min-height:0;
   position: relative;
   z-index: 40;
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
 }
+
 
 /* MOBILE VARIANT (drawer) */
 .dash-sidebar.mobile {
   position: fixed;
-  inset: 0 auto 0 0;
+  top: 0;
+  left: 0;
   width: 260px;
-  height: 100vh;
-
+  height: 100dvh;
+  max-height: 100dvh;
   transform: translateX(-100%);
   transition: transform 0.25s ease;
-
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+.dash-sidebar-header,
+.dash-sidebar-logo,
+.dash-sidebar-footer {
+  flex-shrink: 0;
 }
 
+
+
+.dash-sidebar-nav::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dash-sidebar-nav::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 999px;
+}
+
+.dash-sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.55);
+  border-radius: 999px;
+}
+
+.dash-sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.85);
+}
+
+
+
 .dash-sidebar-nav {
-  flex: 1;
+   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   max-height: 100%;
+  padding-right: 4px;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+
+   flex: 1 1 auto;
+  min-height: 0;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.55) rgba(255, 255, 255, 0.04);
 }
 
 .dash-sidebar.mobile.open {
   transform: translateX(0);
   box-shadow: 0 24px 80px rgba(15, 23, 42, 0.9);
+}
+
+.dash-sidebar-header,
+.dash-sidebar-logo,
+.dash-sidebar-footer {
+  flex-shrink: 0;
 }
 
 .dash-sidebar-backdrop {
@@ -134,12 +184,6 @@
 .dash-logo-text {
   font-size: 18px;
   font-weight: 600;
-}
-
-.dash-sidebar-nav {
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 4px;
 }
 
 .dash-sidebar-group {
@@ -229,6 +273,11 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+
+
+  min-width: 0;
+  min-height: 100dvh;
+  overflow: hidden;
 }
 
 /* TOPBAR */
@@ -544,23 +593,7 @@
     grid-template-columns: 1fr;
   }
 
-  .dash-sidebar {
-  width: 260px;
-  background: #020617;
-  color: #e5e7eb;
-  padding: 16px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  border-right: 1px solid rgba(148, 163, 184, 0.4);
-
-  height: 100vh;
-  min-height: 0;
-  overflow: hidden;
-
-  position: relative;
-  z-index: 40;
-}
+ 
 
   .dash-sidebar,
 .dash-sidebar * {
