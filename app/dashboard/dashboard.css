@@ -5,12 +5,12 @@
   min-height: 100vh;
   height: 100dvh;
 
-  overflow: visible;
+  overflow: hidden; /* 🔥 ВАЖЛИВО */
 }
 
 @media (max-width: 900px) {
   .dash-root {
-    overflow: visible;
+    overflow: hidden;
   }
 }
 
@@ -50,243 +50,7 @@
 
 /* SIDEBAR */
 
-.dash-sidebar {
-  width: 260px;
-  display: flex;
-  flex-direction: column;
 
-  height: 100dvh;
-  max-height: 100dvh;
-
-  overflow: hidden;
-
-  backdrop-filter: blur(20px);
-  background: rgba(2, 6, 23, 0.85);
-  color: #e5e7eb;
-
-  position: relative;
-  z-index: 40;
-
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-
-/* MOBILE VARIANT (drawer) */
-.dash-sidebar.mobile {
-  position: fixed;
-  top: 0;
-  left: 0;
-
-  width: 280px; /* трохи ширше = краще UX */
-  height: 100dvh;
-
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-
-  display: flex;
-  flex-direction: column;
-
-  overflow: hidden; /* 🔥 must */
-   z-index: 100;
-}
-.dash-sidebar-header {
-  flex-shrink: 0;
-}
-.dash-sidebar-logo {
-  flex-shrink: 0;
-}
-.dash-sidebar-footer {
-  flex-shrink: 0;
-  padding-bottom: 20px;
-}
-
-
-
-.dash-sidebar-nav::-webkit-scrollbar {
-  width: 6px;
-}
-
-.dash-sidebar-nav::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 999px;
-}
-
-.dash-sidebar-nav::-webkit-scrollbar-thumb {
-  background: rgba(99,102,241,0.6);
-  border-radius: 999px;
-}
-
-.dash-sidebar-nav::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.85);
-}
-
-.dash-sidebar-nav::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-
-
-.dash-sidebar-nav {
-   flex: 1 1 auto;
-  min-height: 0;
-
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  padding-right: 6px;
-  padding-bottom: 80px;
-
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
-}
-
-.dash-sidebar-nav::after {
-  content: "";
-  display: block;
-  height: 60px;
-}
-
-.dash-sidebar.mobile.open {
-  transform: translateX(0);
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.9);
-}
-
-.dash-sidebar-header,
-.dash-sidebar-logo,
-
-
-.dash-sidebar-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.55);
-  backdrop-filter: blur(4px);
-  z-index: 30;
-}
-
-
-
-/* SIDEBAR CONTENT */
-
-.dash-sidebar-header {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 8px;
-}
-
-.dash-menu-button {
-  border-radius: 999px;
-  padding: 6px 16px;
-  border: none;
-  background: #2563eb;
-  color: #fff;
-  font-weight: 500;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.dash-sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.dash-logo-box {
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  background: radial-gradient(circle at 30% 30%, #3b82f6, #1d4ed8 70%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 20px;
-  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.5);
-}
-
-.dash-logo-text {
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.dash-sidebar-group {
-  margin-bottom: 6px;
-}
-
-.dash-sidebar-link {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-  font-size: 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.dash-sidebar-link:hover {
-  background: rgba(15, 23, 42, 0.9);
-  border-color: rgba(37, 99, 235, 0.5);
-}
-
-.dash-sidebar-link.has-children {
-  background: rgba(15, 23, 42, 0.75);
-}
-
-.dash-sidebar-children {
-  margin-top: 4px;
-  margin-left: 4px;
-  border-left: 2px solid rgba(148, 163, 184, 0.4);
-  padding-left: 8px;
-}
-
-.dash-sidebar-child {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: none;
-  background: transparent;
-  color: #e5e7eb;
-  text-align: left;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.dash-sidebar-child:hover {
-  background: rgba(15, 23, 42, 0.9);
-}
-
-.chevron {
-  font-size: 12px;
-  opacity: 0.7;
-  transform: rotate(0deg);
-  transition: transform 0.15s ease;
-}
-
-.chevron.open {
-  transform: rotate(180deg);
-}
-
-
-
-.dash-logout-btn {
-  width: 100%;
-  background: #ef4444;
-  color: #fff;
-  border: none;
-  padding: 10px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.dash-logout-btn:hover {
-  background: #b91c1c;
-}
 
 /* MAIN */
 
@@ -310,6 +74,8 @@
   padding: 18px 32px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.3);
   gap: 24px;
+  position: relative;
+  z-index: 10;
 }
 
 .dash-theme-light .dash-topbar {
@@ -620,6 +386,230 @@
 .dash-sidebar * {
   min-height: 0;
 }
+}/* ================= SIDEBAR ================= */
+
+.dash-sidebar {
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+
+  height: 100dvh;
+  min-height: 0;
+
+  overflow: hidden;
+
+   background: rgba(2, 6, 23, 0.98);
+   backdrop-filter: none;
+  color: #e5e7eb;
+
+  position: relative;
+  z-index: 40;
+
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* MOBILE DRAWER */
+.dash-sidebar.mobile {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 280px;
+  height: 100dvh;
+
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+  z-index: 100;
+  backdrop-filter: none;
+}
+
+.dash-sidebar.mobile.open {
+  transform: translateX(0);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.9);
+}
+
+/* BACKDROP */
+.dash-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  z-index: 30;
+}
+
+/* FIX FLEX STRUCTURE */
+.dash-sidebar-header,
+.dash-sidebar-logo,
+.dash-sidebar-footer {
+  flex-shrink: 0;
+}
+
+/* ================= SCROLL AREA ================= */
+
+.dash-sidebar-nav {
+  flex: 1;
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding-right: 6px;
+  padding-bottom: 80px;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+/* scrollbar */
+.dash-sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dash-sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(99,102,241,0.6);
+  border-radius: 999px;
+}
+
+.dash-sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(148,163,184,0.9);
+}
+
+/* ================= HEADER ================= */
+
+.dash-sidebar-header {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 8px;
+}
+
+.dash-menu-button {
+  border-radius: 999px;
+  padding: 6px 16px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* ================= LOGO ================= */
+
+.dash-sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.dash-logo-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: radial-gradient(circle at 30% 30%, #3b82f6, #1d4ed8 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.dash-logo-text {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ================= NAV ================= */
+
+.dash-sidebar-group {
+  margin-bottom: 6px;
+}
+
+.dash-sidebar-link {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dash-sidebar-link:hover {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(37, 99, 235, 0.5);
+}
+
+.dash-sidebar-link.has-children {
+  background: rgba(15, 23, 42, 0.7);
+}
+
+/* children */
+
+.dash-sidebar-children {
+  margin-top: 4px;
+  margin-left: 6px;
+  border-left: 2px solid rgba(148,163,184,0.3);
+  padding-left: 8px;
+}
+
+.dash-sidebar-child {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: #e5e7eb;
+  text-align: left;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.dash-sidebar-child:hover {
+  background: rgba(15, 23, 42, 0.9);
+}
+
+/* chevron */
+
+.chevron {
+  font-size: 12px;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.chevron.open {
+  transform: rotate(180deg);
+}
+
+/* ================= FOOTER ================= */
+
+.dash-sidebar-footer {
+  margin-top: auto; /* 🔥 критично */
+  padding-top: 10px;
+}
+
+.dash-logout-btn {
+  width: 100%;
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.dash-logout-btn:hover {
+  background: #b91c1c;
 }
 
 @media (max-width: 600px) {
