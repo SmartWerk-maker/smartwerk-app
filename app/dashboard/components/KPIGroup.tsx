@@ -2,7 +2,6 @@
 
 import React, { useMemo } from "react";
 import { useLanguage } from "@/app/providers/LanguageProvider";
-import { useTheme } from "@/app/providers/ThemeProvider";
 import { useTranslation } from "@/app/i18n";
 
 /* ================= TYPES ================= */
@@ -40,13 +39,9 @@ export default function KPIGroup({
   topClient,
 }: KPIGroupProps) {
   const { language } = useLanguage();
-  const { isDark } = useTheme();
-
   const t = useTranslation(language) as {
     kpi?: Partial<KpiLabels>;
   };
-
-  /* ================= LABELS ================= */
 
   const labels: KpiLabels = useMemo(() => {
     const dict = t?.kpi ?? {};
@@ -63,32 +58,23 @@ export default function KPIGroup({
     };
   }, [t?.kpi]);
 
-  /* ================= HELPERS ================= */
-
   const formatMoney = (v: number) =>
     v.toLocaleString("en-GB", { maximumFractionDigits: 0 });
 
-  const cardStyle: React.CSSProperties = {
-    background: isDark ? "rgba(15,23,42,0.96)" : "#ffffff",
-    boxShadow: isDark
-      ? "0 18px 40px rgba(15,23,42,0.7)"
-      : "0 16px 40px rgba(148,163,184,0.25)",
-    borderRadius: 16,
-    padding: "14px 16px",
-  };
-
-  const Card = (label: string, value: React.ReactNode) => (
-    <div className="dash-card kpi-card" style={cardStyle}>
+  const Card = (
+    label: string,
+    value: React.ReactNode,
+    highlight?: boolean
+  ) => (
+    <div className={`kpi-card ${highlight ? "highlight" : ""}`}>
       <p className="kpi-label">{label}</p>
       <p className="kpi-value">{value}</p>
     </div>
   );
 
-  /* ================= RENDER ================= */
-
   return (
     <>
-      {Card(labels.revenue, `€${formatMoney(revenue)}`)}
+      {Card(labels.revenue, `€${formatMoney(revenue)}`, true)}
       {Card(labels.unpaid, `€${formatMoney(unpaid)}`)}
       {Card(labels.quoteWinRate, `${quoteWinRate}%`)}
       {Card(labels.remindersSent, remindersSent)}

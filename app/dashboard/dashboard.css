@@ -260,40 +260,54 @@
 }
 
 .kpi-card {
+  position: relative;
+
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  
-  min-height: 120px;
   justify-content: space-between;
 
+  min-height: 110px;
+  padding: 16px;
+
+  border-radius: 16px;
+
   background:
-    linear-gradient(180deg, rgba(15,23,42,0.96), rgba(8,15,34,0.98));
+    linear-gradient(180deg, rgba(15,23,42,0.95), rgba(2,6,23,0.98));
+
   border: 1px solid rgba(255,255,255,0.05);
+
   box-shadow:
-    0 14px 40px rgba(0,0,0,0.34),
+    0 12px 35px rgba(0,0,0,0.35),
     inset 0 1px 0 rgba(255,255,255,0.03);
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
+
+  transition: all 0.25s ease;
 }
+
 .kpi-card:hover {
-   transform: translateY(-3px);
-  border-color: rgba(99, 102, 241, 0.20);
+  transform: translateY(-4px);
+
+  border-color: rgba(99,102,241,0.25);
+
   box-shadow:
-    0 22px 55px rgba(0,0,0,0.40),
+    0 20px 60px rgba(0,0,0,0.45),
     0 0 0 1px rgba(99,102,241,0.06),
-    inset 0 1px 0 rgba(255,255,255,0.04);
+    inset 0 1px 0 rgba(255,255,255,0.05);
 }
-  .chart-card:hover {
-    transform: translateY(-3px);
-  border-color: rgba(99, 102, 241, 0.20);
+
+/* 🔥 highlight card (Revenue) */
+.kpi-card.highlight {
+  background:
+    linear-gradient(135deg,
+      rgba(79,70,229,0.25),
+      rgba(15,23,42,0.95)
+    );
+
+  border-color: rgba(79,70,229,0.4);
+
   box-shadow:
-    0 22px 55px rgba(0,0,0,0.40),
-    0 0 0 1px rgba(99,102,241,0.06),
-    inset 0 1px 0 rgba(255,255,255,0.04);
-  }
+    0 18px 50px rgba(79,70,229,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
   .suggestions-card:hover {
     transform: translateY(-3px);
   border-color: rgba(99, 102, 241, 0.20);
@@ -312,14 +326,14 @@
     inset 0 1px 0 rgba(255,255,255,0.04);
   }
 .kpi-label {
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  opacity: 0.62;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
 }
 
 .kpi-value {
-  font-size: clamp(24px, 2vw, 34px);
+  font-size: 26px;
   font-weight: 800;
   letter-spacing: -0.03em;
 }
