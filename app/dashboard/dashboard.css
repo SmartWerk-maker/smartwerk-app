@@ -1,5 +1,12 @@
 /* ROOT LAYOUT */
-
+body {
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
+}
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
 
 
 .dash-root {
@@ -8,8 +15,7 @@
   height: 100dvh;
 
    overflow-x: hidden;
-   overflow-y: hidden;
-
+   
    max-width: 100%;
   overscroll-behavior: none;
 }
@@ -78,8 +84,9 @@
   min-width: 0;
   max-width: 100%;
 
-  overflow-x: hidden;  /* 🔥 */
+  
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* TOPBAR */
