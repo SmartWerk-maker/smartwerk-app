@@ -373,7 +373,7 @@ if (!currentUser) {
 
     const error = validateForm(form, tClients.validation);
     if (error) {
-      alert(error);
+      setHint(error);
       return;
     }
 
@@ -532,6 +532,7 @@ if (!currentUser) {
                 </label>
                 <input
                   id="clientName"
+                  autoFocus
                   className="form-input"
                   value={form.clientName}
                   onChange={(e) => updateField("clientName", e.target.value)}
@@ -750,7 +751,7 @@ if (!currentUser) {
               type="button"
               className="btn-primary"
               onClick={handleSave}
-              disabled={saving}
+              disabled={saving || !form.clientName}
             >
               {isEditing  
               ? `💾 ${tClients.actions?.update ?? "Update Client"}`
@@ -758,21 +759,23 @@ if (!currentUser) {
             </button>
             <button
               type="button"
-              className="btn-primary"
+              className="btn-secondary"
               onClick={goToList}
             >
               📂 {tClients.actions?.list ?? "Saved Clients"}
             </button>
             <button
               type="button"
-              className="btn-primary"
+              className="btn-ai"
               onClick={handleSmartSuggest}
             >
               🤖 {tClients.actions?.smartSuggest ?? "Smart Suggest"}
             </button>
           </div>
 
-          {hint && <div className="smart-hint">{hint}</div>}
+          {hint && (<div className="smart-hint">✨ {hint}
+            </div>
+          )}
         </div>
       </div>
     </main>

@@ -59,7 +59,7 @@ html.dark body * {
 }
 
 .dash-content {
-  max-width: 5000px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 0px 0px 0px;
   display: flex;
@@ -188,11 +188,27 @@ label {
 /* ===========================================
    BUTTONS (BOTTOM ACTIONS)
    =========================================== */
-form-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 18px;
-  flex-wrap: wrap;
+
+
+.btn-ai {
+  background: linear-gradient(135deg, #6366f1, #38bdf8);
+  color: white;
+  border-radius: 999px;
+  padding: 10px 18px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-ai:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(99,102,241,0.4);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn-primary {
@@ -226,31 +242,41 @@ form-actions {
   background: var(--input-border);
 }
 
-/* Хінт Smart Suggest */
-.smart-hint {
-  background: #10b981;
-  color: white;
-  padding: 10px 14px;
-  border-radius: 999px;
-  margin-top: 14px;
-  font-size: 13px;
+.form-actions {
+  position: sticky;
+  bottom: 0;
+  background: var(--card);
+  padding-top: 12px;
+  padding-bottom: 8px;
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 5;
+  flex-wrap: wrap;
+
+  
 }
 
-/* ===========================================
-   SMART SUGGEST HINT
-   =========================================== */
+/* Хінт Smart Suggest */
 .smart-hint {
-  background: #10b981;
+  background: linear-gradient(135deg,#10b981,#22c55e);
   color: white;
   padding: 10px 14px;
   border-radius: 999px;
-  margin-top: 14px;
+  margin-top: 12px;
   font-size: 13px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   animation: fadeIn 0.3s ease;
 }
+
+
+
+/* ===========================================
+   SMART SUGGEST HINT
+   =========================================== */
+
 
 @keyframes fadeIn {
   from {
@@ -316,6 +342,7 @@ form-actions {
   margin: 0;         /* 🔹 прибрали центрування */
   padding: 1px 5px 1px;
   gap: 1px;
+  overflow-x: hidden;
 }
 
 /* Хедер компактний, мінімалістичний */
@@ -359,7 +386,9 @@ form-actions {
   background: var(--card);
   border-radius: 16px;
   padding: 22px 24px;
+  padding-bottom: 80px;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.45);
+  overflow-x: hidden;
 }
 
 /* Вхідні поля */
