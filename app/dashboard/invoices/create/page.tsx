@@ -119,6 +119,8 @@ export default function InvoiceCreatePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const [itemsState, setItemsState] = useState<InvoiceItem[]>([]);
+
   const { language } = useLanguage();
 
   // tRoot може бути null → одразу даємо дефолт {}
@@ -130,7 +132,53 @@ export default function InvoiceCreatePage() {
   // дрібний хелпер
   const $ = (id: string) => document.getElementById(id);
 
+  const totals = React.useMemo(() => {
+  let subtotal = 0;
+  let totalVat = 0;
+
+  itemsState.forEach((i) => {
+    const line = i.qty * i.price;
+    const vat = (line * i.vat) / 100;
+
+    subtotal += line;
+    totalVat += vat;
+  });
+
+  return {
+    subtotal,
+    totalVat,
+    grandTotal: subtotal + totalVat,
+  };
+}, [itemsState]);
+
   /* ========== ITEMS & TOTALS ========== */
+
+  function syncItemsFromDOM() {
+  const rows: InvoiceItem[] = [];
+
+  document.querySelectorAll<HTMLTableRowElement>("#itemsBody tr").forEach(
+    (tr) => {
+      rows.push({
+        desc:
+          tr.querySelector<HTMLInputElement>(".desc")?.value ?? "",
+        qty:
+          parseFloat(
+            tr.querySelector<HTMLInputElement>(".qty")?.value ?? "0"
+          ) || 0,
+        price:
+          parseFloat(
+            tr.querySelector<HTMLInputElement>(".price")?.value ?? "0"
+          ) || 0,
+        vat:
+          parseFloat(
+            tr.querySelector<HTMLSelectElement>(".vat")?.value ?? "0"
+          ) || 0,
+      });
+    }
+  );
+
+  setItemsState(rows);
+}
 
   function updateTotals() {
     let subtotal = 0;
@@ -195,19 +243,25 @@ export default function InvoiceCreatePage() {
     tr.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
       "input,select"
     ).forEach((el) => {
-      el.addEventListener("input", updateTotals);
+      el.addEventListener("input", () => {
+  updateTotals();
+  syncItemsFromDOM();
+});
     });
 
     tr.querySelector<HTMLButtonElement>(".btn-del")?.addEventListener(
       "click",
       () => {
-        tr.remove();
-        updateTotals();
+       tr.remove();
+      updateTotals();
+      syncItemsFromDOM();
       }
     );
 
     document.getElementById("itemsBody")?.appendChild(tr);
     updateTotals();
+    syncItemsFromDOM();
+    
   }
 
   /* ========== SIGNATURES ========== */
@@ -562,36 +616,13 @@ export default function InvoiceCreatePage() {
     }
     const uid = currentUser.uid;
 
-    const items: InvoiceItem[] = [];
-    document.querySelectorAll<HTMLTableRowElement>("#itemsBody tr").forEach(
-      (tr) => {
-        items.push({
-          desc:
-            tr.querySelector<HTMLInputElement>(".desc")?.value.trim() ?? "",
-          qty:
-            parseFloat(
-              tr.querySelector<HTMLInputElement>(".qty")?.value ?? "0"
-            ) || 0,
-          price:
-            parseFloat(
-              tr.querySelector<HTMLInputElement>(".price")?.value ?? "0"
-            ) || 0,
-          vat:
-            parseFloat(
-              tr.querySelector<HTMLSelectElement>(".vat")?.value ?? "0"
-            ) || 0,
-        });
-      }
-    );
+   const items = [...itemsState];
+   
+    
 
-    const subtotal =
-      parseFloat(($("subtotal")?.textContent ?? "").replace(/[^\d.-]/g, "")) ||
-      0;
-    const totalVat =
-      parseFloat(
-        ($("totalVat")?.textContent ?? "").replace(/[^\d.-]/g, "")
-      ) || 0;
-    const grandTotal = subtotal + totalVat;
+    const subtotal = totals.subtotal;
+    const totalVat = totals.totalVat;
+    const grandTotal = totals.grandTotal;
 
     const businessCanvas = $(
       "signatureBusiness"
@@ -728,6 +759,7 @@ useEffect(() => {
     initDates();
     if (!document.querySelector("#itemsBody tr")) addItem();
     updateTotals();
+    syncItemsFromDOM();
 
     await previewNextInvoiceNumber(firebaseUser.uid);
     await loadProfileData(firebaseUser.uid, firebaseUser.email);

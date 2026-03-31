@@ -931,7 +931,12 @@ export default function ClientsListClient() {
       </Button>
     </DropdownMenuTrigger>
 
-    <DropdownMenuContent align="end">
+    <DropdownMenuContent
+     align="end"
+     side="bottom"
+     sideOffset={6}
+     className="w-56 max-w-[90vw]"
+     >
       <DropdownMenuItem
         onClick={(e) => {
           e.stopPropagation();
