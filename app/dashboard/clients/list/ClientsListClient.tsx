@@ -23,6 +23,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { Cell } from "recharts";
+
 
 import { auth, db } from "@/lib/firebase";
 import { useLanguage } from "@/app/providers/LanguageProvider";
@@ -551,7 +553,17 @@ export default function ClientsListClient() {
         width={24}
       />
       <Tooltip />
-      <Bar dataKey="value" radius={[6, 6, 0, 0]} />
+      <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+  {chartData.map((entry, index) => {
+    let color = "#3b82f6";
+
+    if (entry.status === "Active") color = "#22c55e"; // green
+    if (entry.status === "Prospect") color = "#f59e0b"; // amber
+    if (entry.status === "Inactive") color = "#ef4444"; // red
+
+    return <Cell key={`cell-${index}`} fill={color} />;
+  })}
+</Bar>
     </BarChart>
   </ResponsiveContainer>
 </div>
