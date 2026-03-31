@@ -552,7 +552,7 @@ export default function ClientsListClient() {
         axisLine={false}
         width={24}
       />
-      <Tooltip
+     <Tooltip
   cursor={false}
   content={({ active, payload }) => {
     if (!active || !payload?.length) return null;
@@ -560,9 +560,12 @@ export default function ClientsListClient() {
     const data = payload[0];
 
     return (
-      <div className="rounded-lg border bg-white px-3 py-2 ">
-        <div className="font-medium">{data.payload.status}</div>
-        <div className="text-muted-foreground">
+      <div className="rounded-lg border px-3 py-2 text-sm shadow bg-white dark:bg-zinc-900">
+        <div className="font-medium text-black dark:text-white">
+          {data.payload.status}
+        </div>
+
+        <div className="text-gray-500 dark:text-gray-300">
           {data.value} clients
         </div>
       </div>
