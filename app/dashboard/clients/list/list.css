@@ -69,9 +69,11 @@
   background: transparent;
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 4px 8px;
+  padding: 8px 10px;
   font-size: 16px;
   cursor: pointer;
+  min-width: 36px;
+  min-height: 36px;
 }
 
 .client-card-menu-btn:hover {
@@ -375,8 +377,12 @@ button:disabled {
     background: var(--card);
     border: 1px solid var(--border);
     cursor: pointer;
-     transition: all 0.15s ease;
+     transition: transform 0.1s ease, background 0.1s ease;
   }
+
+  .client-card:active {
+  transform: scale(0.98);
+}
 
   .client-card:hover {
   transform: translateY(-2px);
