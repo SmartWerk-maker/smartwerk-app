@@ -162,9 +162,7 @@ body.dash-theme-light .section-toggle {
 .section-content.open {
   display: block;
 }
-.section-content {
-  padding: 14px 16px;
-}
+
 @media (max-width: 768px) {
   .section-content {
     padding: 16px 14px;
