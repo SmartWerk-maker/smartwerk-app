@@ -37,6 +37,13 @@ body.dash-theme-light {
   backdrop-filter: blur(10px);
 }
 
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
 @media (max-width: 600px) {
   .topbar {
     flex-direction: column;
@@ -137,6 +144,7 @@ body.dash-theme-light .btn:hover {
 
 section {
   margin-bottom: 20px;
+  width: 100%;
 }
 
 #grandTotal {
@@ -153,6 +161,10 @@ body.dash-theme-dark .collapsible {
 /* LIGHT */
 body.dash-theme-light .collapsible {
   background: #ffffff;
+}
+
+body.dash-theme-light canvas.signature {
+  border: 1px solid rgba(0,0,0,0.18);
 }
 
 .section-toggle {
@@ -242,6 +254,24 @@ table {
   overflow: hidden;
   margin-top: 6px;
 }
+
+section table {
+  width: 100%;
+}
+
+table {
+  table-layout: fixed;
+}
+
+td input,
+td select {
+  width: 100%;
+}
+
+thead th,
+tbody td {
+  vertical-align: middle;
+}
 @media (max-width: 768px) {
   table {
     display: block;
@@ -280,65 +310,58 @@ tbody td {
  *****************************************************/
 canvas.signature {
   width: 100%;
-  max-width: 100%;
-  height: 160px;
+  max-width: 320px;
+  height: 150px;
   border-radius: 8px;
   background: #fff;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255,255,255,0.12);
 }
 
 .signatures-wrap {
   display: flex;
-  gap: 30px;
-  flex-wrap: wrap;
-  margin-top: 16px;
+  gap: 48px;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  margin-top: 20px;
 }
 @media (max-width: 768px) {
   .signatures-wrap {
     flex-direction: column;
+    gap: 24px;
   }
 }
 
 .invoice-content {
-  max-width: 1100px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 32px;
+}
+.invoice-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 @media (min-width: 1200px) {
   .invoice-content {
-    max-width: 1200px;
+     padding: 0 14px;
   }
 }
 
-@media (min-width: 900px) {
-  .invoice-content form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
 
-  .invoice-content section {
-    grid-column: span 2;
-  }
-
-  .collapsible {
-    grid-column: span 1;
-  }
-}
 
 .signature-box {
-  width: 100%;
-  max-width: 420px;
+  flex: 1 1 0;
+   max-width: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
-   
-}
+  }
 
 .signature-box button {
-  width: 100px;
-  padding: 6px 10px;
+  width: fit-content;
+  min-width: 108px;
+  padding: 8px 12px;
 }
 
 .signature-box p {
