@@ -15,6 +15,8 @@ import {
 import { auth, db } from "@/lib/firebase";
 
 
+
+
 import { useLanguage } from "@/app/providers/LanguageProvider";
 import { useTranslation } from "@/app/i18n";
 import type { FieldValue, Timestamp } from "firebase/firestore";
@@ -120,6 +122,7 @@ export default function InvoiceCreatePage() {
   const [loading, setLoading] = useState(true);
 
   const [itemsState, setItemsState] = useState<InvoiceItem[]>([]);
+  const [saving, setSaving] = useState(false);
 
   const { language } = useLanguage();
 
@@ -609,20 +612,88 @@ export default function InvoiceCreatePage() {
  */
 
   async function saveInvoice() {
+  if (saving) return;
+  setSaving(true);
+
+  try {
+    
+
     const currentUser = auth.currentUser;
     if (!currentUser) {
       router.push("/login");
       return;
     }
+
     const uid = currentUser.uid;
 
-   const items = [...itemsState];
+    const clientId = localStorage.getItem("invoiceClientId") ?? null;
+
+    const items: InvoiceItem[] = [];
+
+    document.querySelectorAll<HTMLTableRowElement>("#itemsBody tr").forEach(
+      (tr) => {
+        items.push({
+          desc:
+            tr.querySelector<HTMLInputElement>(".desc")?.value ?? "",
+          qty:
+            parseFloat(
+              tr.querySelector<HTMLInputElement>(".qty")?.value ?? "0"
+            ) || 0,
+          price:
+            parseFloat(
+              tr.querySelector<HTMLInputElement>(".price")?.value ?? "0"
+            ) || 0,
+          vat:
+            parseFloat(
+              tr.querySelector<HTMLSelectElement>(".vat")?.value ?? "0"
+            ) || 0,
+        });
+      }
+    );
+
+    // ✅ VALIDATION
+    if (!items.length) {
+      alert("Add at least one item");
+      return;
+    }
+
+    if (!items.some((i) => i.qty > 0 && i.price > 0)) {
+      alert("Items must have quantity and price");
+      return;
+    }
+
+    const clientName =
+  ($("clientName") as HTMLInputElement | null)?.value.trim() ?? "";
+
+if (!clientName) {
+  alert("Client name is required");
+  return;
+}
+
+const invoiceDate =
+  ($("invoiceDate") as HTMLInputElement | null)?.value ?? "";
+
+if (!invoiceDate) {
+  alert("Invoice date is required");
+  return;
+}
+
+    // 👇 ДАЛІ ТВОЙ КОД БЕЗ ЗМІН
    
     
 
-    const subtotal = totals.subtotal;
-    const totalVat = totals.totalVat;
-    const grandTotal = totals.grandTotal;
+    let subtotal = 0;
+let totalVat = 0;
+
+items.forEach((i) => {
+  const line = i.qty * i.price;
+  const vat = (line * i.vat) / 100;
+
+  subtotal += line;
+  totalVat += vat;
+});
+
+const grandTotal = subtotal + totalVat;
 
     const businessCanvas = $(
       "signatureBusiness"
@@ -654,7 +725,14 @@ const normalizedStatus = statusRaw.toLowerCase() as
   | "paid";
 
 
+let createdAtValue: Timestamp | FieldValue = serverTimestamp();
 
+if (editingId) {
+  const existing = await getDoc(doc(db, "users", uid, "invoices", editingId));
+  if (existing.exists()) {
+    createdAtValue = existing.data().createdAt || serverTimestamp();
+  }
+}
 const data: InvoiceFirestoreMeta & InvoiceData = {
 
   /* ================= DASHBOARD CONTRACT ================= */
@@ -662,9 +740,9 @@ const data: InvoiceFirestoreMeta & InvoiceData = {
   number: invoiceNumber,           // 🔑
   status: normalizedStatus,        // 🔑 lowercase
   total: grandTotal,               // 🔑
-  createdAt: serverTimestamp(), // 🔑
+  createdAt: createdAtValue, // 🔑
   updatedAt: serverTimestamp(),
-  clientId: localStorage.getItem("invoiceClientId") ?? null,                // 🔑
+  clientId,               // 🔑
 
   /* ================= FORM / UI DATA ================= */
   businessName:
@@ -729,18 +807,29 @@ localStorage.removeItem("invoiceClientId");
 
     try {
       await addDoc(collection(db, "users", uid, "events"), {
+        
         type: "Invoice",
         message: editingId
           ? `Invoice ${invoiceNumber} updated`
           : `Invoice ${invoiceNumber} created`,
        createdAt: serverTimestamp(),
       });
+      
     } catch (e) {
       console.warn("Event log failed:", e);
     }
-
     router.push("/dashboard/invoices/list");
+
+    } catch (e) {
+  console.error("Save invoice failed:", e);
+  alert("❌ Failed to save invoice");
+
+    } finally {
+  setSaving(false);
+}
+    
   }
+  
   
 
   /* ========== HOOKS ========== */
@@ -780,7 +869,12 @@ useEffect(() => {
     if (!user || loading) return;
     setupSignature("signatureBusiness", "signatureBusinessDate");
     setupSignature("signatureClient", "signatureClientDate");
-  }, [user, loading]);
+    return () => {
+    window.removeEventListener("mouseup", () => {});
+    window.removeEventListener("touchend", () => {});
+  };
+  },
+   [user, loading]);
 
   /* ========== HANDLЕРИ ДЛЯ JSX ========== */
 
@@ -836,7 +930,7 @@ useEffect(() => {
 
       <main className="dash-main invoice-page">
         <div className="dash-content invoice-content">
-          <form id="invoiceForm">
+          <form id="invoiceForm" onSubmit={(e) => e.preventDefault()}>
             {/* Business Info */}
             <section className="collapsible">
               <button type="button" className="section-toggle">
@@ -1146,6 +1240,7 @@ useEffect(() => {
                 id="saveBtn"
                 className="btn"
                 onClick={handleSaveClick}
+                disabled={saving}
               >
                 {label(tInv.btnSave, "Save Invoice")}
               </button>
