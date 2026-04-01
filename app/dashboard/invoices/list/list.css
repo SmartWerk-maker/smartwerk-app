@@ -181,6 +181,7 @@
     text-align: left;
     border-bottom: 1px solid var(--line);
     vertical-align: middle;
+    align-items: flex-start;
   }
 
   .invoices-table td {
@@ -201,8 +202,23 @@
       padding: 12px;
       margin-bottom: 12px;
       border: 1px solid var(--line);
+      margin-left: 0;
+    margin-right: 0;
     }
 
+     main {
+    padding: 0 12px;
+  }
+
+    .filters label {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  .filters-reset {
+  width: 100%;
+  margin-top: 8px;
+}
     
 
     .invoices-table td {
@@ -218,14 +234,29 @@
 
     .invoices-actions {
       flex-direction: column;
+       flex-wrap: wrap;
       gap: 6px;
       margin-top: 10px;
     }
 
     .invoices-actions .btn {
       width: 100%;
+       font-size: 12px;
+  padding: 6px 8px;
     }
 
+    @media (max-width: 768px) {
+  .actions-right {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .actions-right .btn {
+    width: 100%;
+  }
+}
 
 
 
@@ -234,6 +265,7 @@
     font-size: 12px;
     font-weight: 600;
     color: var(--muted);
+    min-width: 90px;
   }
 
 
@@ -415,10 +447,11 @@
   }
 
   .dash-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 8px;
-  }
+  width: 100%;
+  max-width: 1400px; /* або 1600 */
+  margin: 0 auto;
+  padding: 0 16px;
+}
 
 
 
