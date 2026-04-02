@@ -820,10 +820,6 @@ background: var(--card);
     color 0.22s ease;
 }
 
-.dash-sidebar-link:hover {
-  transform: translateX(4px);
-   background: rgba(59,130,246,0.12);
-}
 
 .dash-sidebar-link:hover {
    background: rgba(59, 130, 246, 0.10);

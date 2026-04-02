@@ -195,6 +195,22 @@ export default function AddClientPage() {
     return () => unsub();
   }, [router]);
 
+  useEffect(() => {
+  if (!hint) return;
+
+  const t = setTimeout(() => setHint(null), 2500);
+  return () => clearTimeout(t);
+}, [hint]);
+
+  useEffect(() => {
+  if (typeof window !== "undefined") {
+    const path = window.location.pathname;
+    if (path.includes("/create")) {
+      localStorage.removeItem("editClientId");
+    }
+  }
+}, []);
+
   // ---- LOAD (new / edit) ----
   // ---- LOAD (new / edit) ----
 useEffect(() => {
@@ -359,7 +375,7 @@ useEffect(() => {
     }
 
     setHint("✅ " + messages.join(" · "));
-    setTimeout(() => setHint(null), 2500);
+   
   }
 
   async function handleSave() {
@@ -417,14 +433,14 @@ if (!currentUser) {
           ...payload,
           createdAt: serverTimestamp(),
         });
-        alert("✅ Client saved successfully!");
+        setHint("✅ Client saved successfully!");
       }
 
       router.push("/dashboard/clients/list");
 
     } catch (err) {
       console.error("Save client error:", err);
-      alert("❌ Error while saving client. Please try again.");
+      setHint("❌ Error while saving client. Please try again.");
     } finally {
       setSaving(false);
     }

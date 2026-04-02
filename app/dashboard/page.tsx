@@ -87,7 +87,7 @@ export default function DashboardPage() {
   /* ================= RENDER ================= */
 
   return (
-    <div className={`dash-root ${isDark ? "dash-theme-dark" : "dash-theme-light"}`}>
+    <div className="dash-root">
       {/* MOBILE BACKDROP */}
       {isMobile && sidebarOpen && (
         <div

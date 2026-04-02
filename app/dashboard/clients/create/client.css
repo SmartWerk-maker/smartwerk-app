@@ -3,8 +3,8 @@
    =========================================== */
 
 /* коли дашборд у світлій темі */
-body.dash-theme-light,
-body.dash-theme-light * {
+
+body.dash-theme-light  {
   --bg: #f1f5f9;
   --text: #1f2937;
   --card: #ffffff;
@@ -17,8 +17,8 @@ body.dash-theme-light * {
 }
 
 /* коли дашборд у темній темі */
-body.dash-theme-dark,
-body.dash-theme-dark * {
+
+body.dash-theme-dark  {
   --bg: #020617;
   --text: #e2e8f0;
   --card: #020617;
@@ -32,7 +32,7 @@ body.dash-theme-dark * {
 
 /* додатково — якщо theme вішаться на <html class="dark"> */
 html.dark body,
-html.dark body * {
+html.dark body  {
   --bg: #020617;
   --text: #e2e8f0;
   --card: #020617;
@@ -58,7 +58,15 @@ html.dark body * {
   min-height: 100vh;
 }
 
-.dash-content {
+.dash-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  background: var(--card);
+}
+
+.clients-page .dash-content {
   max-width: 100%;
   margin: 0 auto;
   padding: 0px 0px 0px;
@@ -248,6 +256,7 @@ button:disabled {
   background: var(--card);
   padding-top: 12px;
   padding-bottom: 8px;
+  border-top: 1px solid var(--input-border);
   margin-top: 20px;
   display: flex;
   gap: 10px;
@@ -391,14 +400,7 @@ button:disabled {
   overflow-x: hidden;
 }
 
-/* Вхідні поля */
-.form-section {
-  margin-bottom: 28px;
-}
 
-.form-section-title {
-  font-size: 17px;
-}
 @media (max-width: 900px) {
   .clients-page .clients-page-content {
     max-width: 100%;
