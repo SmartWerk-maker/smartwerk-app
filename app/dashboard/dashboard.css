@@ -1,7 +1,33 @@
 /* ROOT LAYOUT */
 
+:root {
+  --bg: #0e1014;
+  --card: #1a1d2e;
+  --text: #f0f2f5;
+  --muted: #9aa3b2;
+  --line: #2d3147;
+  --accent: #3b79ff;
+  --accent-hover: #2a66db;
+  --danger: #ff4d4f;
+  --shadow: rgba(0, 0, 0, 0.25);
+}
+
+.dash-theme-light {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #1e293b;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --shadow: rgba(0,0,0,0.1);
+}
+
 html, body {
   overflow-x: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
 }
 
 
@@ -9,6 +35,7 @@ html, body {
   display: flex;
   min-height: 100vh;
   height: auto;
+  width: 100%;
 
    overflow-x: hidden;
    
@@ -30,19 +57,19 @@ html, body {
 
 .dash-theme-dark {
    background: rgba(15,23,42,0.96);
-  color: #e5e7eb;
+  color: var(--text);
 }
 
 .dash-theme-light {
-  background: #ffffff;
-  color: #111827;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: 0 10px 25px var(--shadow);
 }
 
 
 .dash-theme-light .dash-sidebar {
-  background: #ffffff;
-  color: #111827;
+  background: var(--bg);
+  color: var(--text);
   border-right: 1px solid rgba(0, 0, 0, 0.1);
 }
 
@@ -74,7 +101,7 @@ html, body {
   flex: 1;
   display: flex;
   flex-direction: column;
-
+width: 100%;  
   min-width: 0;
   max-width: 100%;
 
@@ -87,7 +114,7 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 18px 32px;
+  width: 100%;
   border-bottom: 1px solid rgba(255,255,255,0.05);
   gap: 24px;
   position: sticky;
@@ -96,15 +123,15 @@ html, body {
   z-index: 20;
    -webkit-backdrop-filter: blur(18px);
    backdrop-filter: blur(18px);
-   background: rgba(2,6,23,0.7);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    background: var(--card);
+  box-shadow: 0 10px 25px var(--shadow);
 }
 
 .dash-theme-light .dash-topbar {
   background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(8px);
    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
-   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+   box-shadow: 0 10px 25px var(--shadow);
 }
 
 .dash-topbar-left {
@@ -189,12 +216,12 @@ html, body {
   gap: 8px;
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.8);
+  background: var(--bg);
   border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
 .dash-theme-light .user-pill {
-  background: #ffffff;
+  background: var(--bg);
   border-color: rgba(0, 0, 0, 0.1);
 }
 
@@ -234,7 +261,10 @@ html, body {
 /* CONTENT */
 
 .dash-content {
-  padding: 16px 32px 32px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -246,11 +276,10 @@ html, body {
   border-radius: 16px;
   padding: 16px;
   
-  color: #e5e7eb;
+  color: var(--text);
   
 
-   background:
-    linear-gradient(180deg, rgba(15,23,42,0.96), rgba(8,15,34,0.98));
+  background: var(--card);
   border: 1px solid rgba(255,255,255,0.05);
   box-shadow:
     0 14px 40px rgba(0,0,0,0.34),
@@ -262,9 +291,9 @@ html, body {
 }
 
 .dash-theme-light .dash-card {
-  background: #ffffff;
-  color: #111827;
-  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.08);
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: 0 10px 25px var(--shadow);
 }
 .dash-card,
 .dash-charts-row,
@@ -297,8 +326,9 @@ html, body {
 
   border-radius: 16px;
 
-  background:
-    linear-gradient(180deg, rgba(15,23,42,0.95), rgba(2,6,23,0.98));
+  background: var(--card);
+  color: var(--text);
+
 
   border: 1px solid rgba(255,255,255,0.05);
 
@@ -325,12 +355,8 @@ html, body {
 
 /* 🔥 highlight card (Revenue) */
 .kpi-card.highlight {
-  background:
-    linear-gradient(135deg,
-      rgba(79,70,229,0.25),
-      rgba(15,23,42,0.95)
-    );
-
+  
+background: var(--card);
   border-color: rgba(79,70,229,0.4);
 
   box-shadow:
@@ -342,10 +368,12 @@ html, body {
   background: inherit;
 }
 
+
+
 /* LIGHT FIX */
 .dash-theme-light .suggestions-card {
-  background: #ffffff;
-  color: #111827;
+  background: var(--bg);
+  color: var(--text);
 }
 
 /* DARK FIX */
@@ -405,9 +433,9 @@ html, body {
   position: relative;
   overflow: hidden;
 
-   background:
-    linear-gradient(180deg, rgba(15,23,42,0.96), rgba(8,15,34,0.98));
-  border: 1px solid rgba(255,255,255,0.05);
+   background: var(--card);
+   color: var(--text);
+  border: 1px solid var(--line);
   box-shadow:
     0 14px 40px rgba(0,0,0,0.34),
     inset 0 1px 0 rgba(255,255,255,0.03);
@@ -530,8 +558,8 @@ html, body {
   flex-direction: column;
   gap: 10px;
 
-   background:
-    linear-gradient(180deg, rgba(15,23,42,0.96), rgba(8,15,34,0.98));
+   background: var(--card);
+    color: var(--text);
   border: 1px solid rgba(255,255,255,0.05);
   box-shadow:
     0 14px 40px rgba(0,0,0,0.34),
@@ -573,14 +601,14 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #020617;
+  background: var(--bg);
 }
 
 .dash-loading-card {
   padding: 12px 18px;
   border-radius: 999px;
   background: #0f172a;
-  color: #e5e7eb;
+  color: var(--text);
   font-size: 14px;
 }
 
@@ -598,7 +626,7 @@ html, body {
   }
 
   .dash-content {
-    padding: 12px 16px 24px;
+   padding: 12px;
   }
 
   .user-email {
@@ -627,9 +655,9 @@ html, body {
   height: 100dvh;
   min-height: 0;
   overflow: hidden;
-   background: rgba(2, 6, 23, 0.98);
+   background: var(--card);
    backdrop-filter: none;
-  color: #e5e7eb;
+  color: var(--text);
   position: relative;
   z-index: 40;
   padding-bottom: env(safe-area-inset-bottom);
@@ -637,6 +665,9 @@ html, body {
    will-change: transform;
    border-right: 1px solid rgba(99, 102, 241, 0.14);
   box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.03);
+}
+.dash-theme-dark .dash-sidebar {
+  background: rgba(2, 6, 23, 0.98);
 }
 
 /* MOBILE DRAWER */
@@ -668,7 +699,7 @@ html, body {
 .dash-sidebar-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(0,0,0,0.4);
   z-index: 30;
 }
 
@@ -834,7 +865,7 @@ html, body {
   border-radius: 8px;
   background: transparent;
   border: none;
-  color: #e5e7eb;
+  color: var(--text);
   text-align: left;
   cursor: pointer;
   font-size: 13px;
@@ -972,7 +1003,7 @@ html, body {
 .lang-select.active {
   background: #2563eb;
   color: #ffffff;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 10px 25px var(--shadow);
 }
 
 .dash-theme-light .lang-select.active {
@@ -984,15 +1015,15 @@ html, body {
 /* DARK */
 .dash-theme-dark .kpi-card {
   background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(2,6,23,0.98));
-  color: #e5e7eb;
+  color: var(--text);
 }
 
 /* LIGHT */
 .dash-theme-light .kpi-card {
-  background: #ffffff;
-  color: #111827;
+  background: var(--bg);
+  color: var(--text);
   border: 1px solid rgba(0,0,0,0.06);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  box-shadow: 0 10px 25px var(--shadow);
 }
 
 /* Smooth transitions */

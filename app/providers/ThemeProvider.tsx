@@ -5,6 +5,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useCallback,
   type ReactNode,
 } from "react";
 
@@ -19,13 +20,13 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 // ----------------------------------------------------------
-// INITIAL THEME (SSR-safe)
+// GET INITIAL THEME (NO FLASH SAFE)
 // ----------------------------------------------------------
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "dark";
 
   try {
-    const saved = window.localStorage.getItem("theme");
+    const saved = localStorage.getItem("theme");
     if (saved === "light" || saved === "dark") return saved;
 
     return window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -37,39 +38,53 @@ function getInitialTheme(): Theme {
 }
 
 // ----------------------------------------------------------
+// APPLY THEME (SINGLE SOURCE OF TRUTH)
+// ----------------------------------------------------------
+function applyTheme(theme: Theme) {
+  if (typeof document === "undefined") return;
+
+  const body = document.body;
+
+  body.classList.remove("dash-theme-light", "dash-theme-dark");
+  body.classList.add(
+    theme === "dark" ? "dash-theme-dark" : "dash-theme-light"
+  );
+}
+
+// ----------------------------------------------------------
 // PROVIDER
 // ----------------------------------------------------------
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
 
+  // 🔥 APPLY THEME ASAP (fix flash)
   useEffect(() => {
-    if (typeof document === "undefined") return;
-
-    const root = document.documentElement;
-    const body = document.body;
-
-    // клас, який ти вже використовував раніше
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-
-    // 🟦 додатково — класи для dashboard / client.css
-    body.classList.remove("dash-theme-light", "dash-theme-dark");
-    body.classList.add(
-      theme === "dark" ? "dash-theme-dark" : "dash-theme-light"
-    );
+    applyTheme(theme);
 
     try {
-      window.localStorage.setItem("theme", theme);
-    } catch {
-      // ignore errors
-    }
+      localStorage.setItem("theme", theme);
+    } catch {}
   }, [theme]);
 
-  const toggleTheme = () =>
+  // 🔥 OPTIONAL: sync with system theme (only if no manual choice)
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const handleChange = () => {
+      const saved = localStorage.getItem("theme");
+      if (!saved) {
+        const systemTheme = media.matches ? "dark" : "light";
+        setTheme(systemTheme);
+      }
+    };
+
+    media.addEventListener("change", handleChange);
+    return () => media.removeEventListener("change", handleChange);
+  }, []);
+
+  const toggleTheme = useCallback(() => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  }, []);
 
   return (
     <ThemeContext.Provider

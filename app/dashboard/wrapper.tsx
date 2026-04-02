@@ -6,10 +6,10 @@ import { LanguageProvider } from "@/app/providers/LanguageProvider";
 
 export default function ClientWrapper({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider>
-      <LanguageProvider>
-        {children}
-      </LanguageProvider>
-    </ThemeProvider>
+    <LanguageProvider>
+  <ThemeProvider>
+    {children}
+  </ThemeProvider>
+</LanguageProvider>
   );
 }
