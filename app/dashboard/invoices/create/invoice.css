@@ -322,6 +322,8 @@ body.dash-theme-light .invoice-page thead th {
   border: 1px solid rgba(0,0,0,0.18);
   border-radius: 8px;
   touch-action: none;
+  position: relative;
+  z-index: 10;
 }
 
 .invoice-page .signatures-wrap {
@@ -330,6 +332,8 @@ body.dash-theme-light .invoice-page thead th {
   align-items: flex-start;
   flex-wrap: nowrap;
   margin-top: 20px;
+  position: relative;
+  z-index: 1;
 }
 @media (max-width: 768px) {
   .invoice-page .signatures-wrap {
@@ -363,6 +367,8 @@ body.dash-theme-light .invoice-page thead th {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  position: relative;
+  z-index: 1;
   }
 
 .invoice-page .signature-box button {
