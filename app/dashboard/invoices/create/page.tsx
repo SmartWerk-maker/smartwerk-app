@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import {
@@ -116,6 +116,131 @@ interface InvoiceFirestoreMeta {
 // невеликий хелпер для i18n
 const label = (value: string | undefined, fallback: string) =>
   value ?? fallback;
+
+const useSignaturePad = (
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
+  onSave: (dataUrl: string) => void
+) => {
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let drawing = false;
+    let savedImage: string | null = null;
+
+    const resizeCanvas = () => {
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      const data = canvas.toDataURL();
+      savedImage = data !== "data:," ? data : null;
+
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#000";
+
+      if (savedImage && savedImage !== "data:,") {
+        const img = new Image();
+        img.onload = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        };
+        img.src = savedImage;
+      }
+    };
+
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    canvas.style.touchAction = "none";
+
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000";
+
+    const getPos = (clientX: number, clientY: number) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+
+      return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY,
+      };
+    };
+
+    const start = (x: number, y: number) => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    };
+
+    const move = (x: number, y: number) => {
+      if (!drawing) return;
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    };
+
+    const end = () => {
+      if (!drawing) return;
+      drawing = false;
+      ctx.beginPath();
+      onSave(canvas.toDataURL());
+    };
+
+    const onMouseDown = (e: MouseEvent) => {
+      const { x, y } = getPos(e.clientX, e.clientY);
+      start(x, y);
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      const { x, y } = getPos(e.clientX, e.clientY);
+      move(x, y);
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      if (!touch) return;
+      const { x, y } = getPos(touch.clientX, touch.clientY);
+      start(x, y);
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      if (!touch) return;
+      const { x, y } = getPos(touch.clientX, touch.clientY);
+      move(x, y);
+    };
+
+    canvas.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", end);
+
+    canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+    canvas.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("touchend", end);
+
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+
+      canvas.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", end);
+
+      canvas.removeEventListener("touchstart", onTouchStart);
+      canvas.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", end);
+    };
+  }, [canvasRef, onSave]);
+};
 
 export default function InvoiceCreatePage() {
   const router = useRouter();
@@ -639,6 +764,8 @@ localStorage.removeItem("editInvoiceId");
 
   /* ========== HOOKS ========== */
 
+  
+
   // інит даних / форми
   /* eslint-disable react-hooks/exhaustive-deps */
 useEffect(() => {
@@ -674,239 +801,31 @@ await loadProfileData(firebaseUser.uid, firebaseUser.email);
 /* eslint-enable react-hooks/exhaustive-deps */
 
   // ініціалізація підписів після того, як DOM готовий
+
+  const handleBusinessSignatureSave = useCallback((dataUrl: string) => {
+  setSignatures((prev) => ({
+    ...prev,
+    business: dataUrl,
+    businessDate: new Date().toLocaleDateString("nl-NL"),
+  }));
+}, []);
+
+  useSignaturePad(businessCanvasRef, handleBusinessSignatureSave);
+
+const handleClientSignatureSave = useCallback((dataUrl: string) => {
+  setSignatures((prev) => ({
+    ...prev,
+    client: dataUrl,
+    clientDate: new Date().toLocaleDateString("nl-NL"),
+  }));
+}, []);
+
+useSignaturePad(clientCanvasRef, handleClientSignatureSave);
   
-useEffect(() => {
-  const canvas = businessCanvasRef.current;
-  if (!canvas) return;
-
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-
-  // 🔥 важливо для mobile
-  canvas.style.touchAction = "none";
-
-  // 🔥 стиль лінії (було головною причиною що не малює)
-  ctx.lineWidth = 2;
-  ctx.lineCap = "round";
-  ctx.strokeStyle = "#000";
-
-  let drawing = false;
-
-  // ===== HELPERS =====
-  const getPos = (clientX: number, clientY: number) => {
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: clientX - rect.left,
-      y: clientY - rect.top,
-    };
-  };
-
-  // ===== MOUSE =====
-  const start = (e: MouseEvent) => {
-    drawing = true;
-    const { x, y } = getPos(e.clientX, e.clientY);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-  };
-
-  const move = (e: MouseEvent) => {
-    if (!drawing) return;
-    const { x, y } = getPos(e.clientX, e.clientY);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
-
-  const end = () => {
-    if (!drawing) return;
-    drawing = false;
-    ctx.beginPath();
-
-    setSignatures((prev) => ({
-      ...prev,
-      businessDate: new Date().toLocaleDateString("nl-NL"),
-      business: canvas.toDataURL(),
-    }));
-  };
-
-  // ===== TOUCH =====
-  const startTouch = (e: TouchEvent) => {
-    e.preventDefault();
-    drawing = true;
-
-    const touch = e.touches[0];
-    const { x, y } = getPos(touch.clientX, touch.clientY);
-
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-  };
-
-  const moveTouch = (e: TouchEvent) => {
-    if (!drawing) return;
-
-    const touch = e.touches[0];
-    const { x, y } = getPos(touch.clientX, touch.clientY);
-
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
-
-  const endTouch = () => {
-    if (!drawing) return;
-    drawing = false;
-    ctx.beginPath();
-
-    setSignatures((prev) => ({
-      ...prev,
-      businessDate: new Date().toLocaleDateString("nl-NL"),
-      business: canvas.toDataURL(),
-    }));
-  };
-
-  // ===== LISTENERS =====
-  canvas.addEventListener("mousedown", start);
-  canvas.addEventListener("mousemove", move);
-  window.addEventListener("mouseup", end);
-
-  canvas.addEventListener("touchstart", startTouch);
-  canvas.addEventListener("touchmove", moveTouch);
-  window.addEventListener("touchend", endTouch);
-
-  // ===== CLEANUP =====
-  return () => {
-    canvas.removeEventListener("mousedown", start);
-    canvas.removeEventListener("mousemove", move);
-    window.removeEventListener("mouseup", end);
-
-    canvas.removeEventListener("touchstart", startTouch);
-    canvas.removeEventListener("touchmove", moveTouch);
-    window.removeEventListener("touchend", endTouch);
-  };
-}, []);
-
-useEffect(() => {
-  const canvas = clientCanvasRef.current;
-  if (!canvas) return;
-
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-
-  canvas.style.touchAction = "none";
-
-  ctx.lineWidth = 2;
-  ctx.lineCap = "round";
-  ctx.strokeStyle = "#000";
-
-  let drawing = false;
-
-  const getPos = (clientX: number, clientY: number) => {
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: clientX - rect.left,
-      y: clientY - rect.top,
-    };
-  };
-
-  // ===== MOUSE =====
-  const start = (e: MouseEvent) => {
-    drawing = true;
-    const { x, y } = getPos(e.clientX, e.clientY);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-  };
-
-  const move = (e: MouseEvent) => {
-    if (!drawing) return;
-    const { x, y } = getPos(e.clientX, e.clientY);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
-
-  const end = () => {
-    if (!drawing) return;
-    drawing = false;
-    ctx.beginPath();
-
-    setSignatures((prev) => ({
-      ...prev,
-      clientDate: new Date().toLocaleDateString("nl-NL"),
-      client: canvas.toDataURL(),
-    }));
-  };
-
-  // ===== TOUCH =====
-  const startTouch = (e: TouchEvent) => {
-    e.preventDefault();
-    drawing = true;
-
-    const touch = e.touches[0];
-    const { x, y } = getPos(touch.clientX, touch.clientY);
-
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-  };
-
-  const moveTouch = (e: TouchEvent) => {
-    if (!drawing) return;
-
-    const touch = e.touches[0];
-    const { x, y } = getPos(touch.clientX, touch.clientY);
-
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
-
-  const endTouch = () => {
-    if (!drawing) return;
-    drawing = false;
-    ctx.beginPath();
-
-    setSignatures((prev) => ({
-      ...prev,
-      clientDate: new Date().toLocaleDateString("nl-NL"),
-      client: canvas.toDataURL(),
-    }));
-  };
-
-  // ===== LISTENERS =====
-  canvas.addEventListener("mousedown", start);
-  canvas.addEventListener("mousemove", move);
-  window.addEventListener("mouseup", end);
-
-  canvas.addEventListener("touchstart", startTouch);
-  canvas.addEventListener("touchmove", moveTouch);
-  window.addEventListener("touchend", endTouch);
-
-  return () => {
-    canvas.removeEventListener("mousedown", start);
-    canvas.removeEventListener("mousemove", move);
-    window.removeEventListener("mouseup", end);
-
-    canvas.removeEventListener("touchstart", startTouch);
-    canvas.removeEventListener("touchmove", moveTouch);
-    window.removeEventListener("touchend", endTouch);
-  };
-}, []);
 
 
 
-useEffect(() => {
-  const draw = (canvas: HTMLCanvasElement | null, dataUrl: string) => {
-    if (!canvas || !dataUrl) return;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const img = new Image();
-    img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    };
-    img.src = dataUrl;
-  };
-
-  draw(businessCanvasRef.current, signatures.business);
-  draw(clientCanvasRef.current, signatures.client);
-}, [signatures]);
 
 
   /* ========== HANDLЕРИ ДЛЯ JSX ========== */
