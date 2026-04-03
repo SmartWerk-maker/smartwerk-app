@@ -132,28 +132,32 @@ const useSignaturePad = (
     let savedImage: string | null = null;
 
     const resizeCanvas = () => {
-      const rect = canvas.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
 
-      const data = canvas.toDataURL();
-      savedImage = data !== "data:," ? data : null;
+  const ratio = window.devicePixelRatio || 1;
 
-      canvas.width = rect.width;
-      canvas.height = rect.height;
+  const data = canvas.toDataURL();
+  savedImage = data !== "data:," ? data : null;
 
-      ctx.lineWidth = 2.5;
-      ctx.lineCap = "round";
-      ctx.strokeStyle = "#000";
+  canvas.width = rect.width * ratio;
+  canvas.height = rect.height * ratio;
 
-      if (savedImage && savedImage !== "data:,") {
-        const img = new Image();
-        img.onload = () => {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        };
-        img.src = savedImage;
-      }
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#000";
+
+  if (savedImage) {
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, rect.width, rect.height);
     };
+    img.src = savedImage;
+  }
+};
 
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);

@@ -319,7 +319,10 @@ body.dash-theme-light .invoice-page thead th {
   height: 150px;
   border-radius: 8px;
   background: #fff;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 3px solid red;
+  display: block;
+  
+  
 }
 
 .invoice-page .signatures-wrap {
