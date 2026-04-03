@@ -651,29 +651,22 @@ const useSignaturePad = (
     const init = () => {
       const canvas = canvasRef.current;
 
-      
-
       if (!canvas) {
         raf = requestAnimationFrame(init);
         return;
       }
-      
 
-      console.log("✅ canvas READY реально");
+      console.log("✅ canvas READY");
 
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      const ratio = window.devicePixelRatio || 1;
 
-      canvas.width = 320 * ratio;
-      canvas.height = 150 * ratio;
+      // ✅ ФІКСОВАНИЙ розмір (без retina магії поки)
+      canvas.width = 320;
+      canvas.height = 150;
 
       canvas.style.width = "320px";
       canvas.style.height = "150px";
-
-ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-
-      let drawing = false;
 
       ctx.lineWidth = 2.5;
       ctx.lineCap = "round";
@@ -682,38 +675,41 @@ ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
       canvas.style.touchAction = "none";
 
+      let drawing = false;
+
+      // ✅ БЕЗ scale — чисті координати
       const getPos = (e: PointerEvent) => {
-  const rect = canvas.getBoundingClientRect();
+        const rect = canvas.getBoundingClientRect();
 
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-
-  return {
-    x: (e.clientX - rect.left) * scaleX,
-    y: (e.clientY - rect.top) * scaleY,
-  };
-};
+        return {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        };
+      };
 
       const down = (e: PointerEvent) => {
-        console.log("DOWN");
         drawing = true;
         const { x, y } = getPos(e);
+
         ctx.beginPath();
         ctx.moveTo(x, y);
       };
 
       const move = (e: PointerEvent) => {
         if (!drawing) return;
+
         const { x, y } = getPos(e);
+
         ctx.lineTo(x, y);
         ctx.stroke();
       };
 
       const up = () => {
         if (!drawing) return;
-        console.log("UP");
+
         drawing = false;
         ctx.beginPath();
+
         onSave(canvas.toDataURL());
       };
 
