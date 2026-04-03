@@ -1,7 +1,9 @@
 /*****************************************************
  *  BASE (GLOBAL)
  *****************************************************/
-
+html, body {
+  overflow-x: hidden;
+}
 
 .invoice-page  {
   margin: 0;
@@ -15,24 +17,29 @@
 .invoice-page * {
   box-sizing: border-box;
 }
-
+.actions-right {
+  display: flex;
+  gap: 10px;
+}
 /*****************************************************
  *  THEME BACKGROUND
  *****************************************************/
 body.dash-theme-dark .invoice-page {
   background: radial-gradient(circle at top, #020617, #020617 55%, #000 100%);
   color: #e5e7eb;
+  padding: 10px;
 }
 
 body.dash-theme-light .invoice-page {
   background: #f5f6f8;
   color: var(--text);
+  padding: 10px;
 }
 
 /*****************************************************
  *  TOPBAR (compact)
  *****************************************************/
-.invoice-page .topbar {
+.topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -40,6 +47,9 @@ body.dash-theme-light .invoice-page {
   margin-bottom: 14px;
   border-bottom: 1px solid rgba(0,0,0,0.1);
   backdrop-filter: blur(10px);
+
+  max-width: 900px;
+  margin: 0 auto 14px;
 }
 
 .invoice-page .actions {
@@ -88,10 +98,8 @@ body.dash-theme-light .invoice-page .topbar {
 /*****************************************************
  *  BUTTONS (compact)
  *****************************************************/
-.invoice-page .btn,
-.invoice-page button {
-  appearance: none;
-  padding: 8px 14px;
+.invoice-page .btn {
+  padding: 10px 14px;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
@@ -99,8 +107,20 @@ body.dash-theme-light .invoice-page .topbar {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: 0.15s ease;
-   min-height: 40px;
+}
+.invoice-page .btn:hover {
+  transform: translateY(-1px);
+}
+
+/* окремо toggle */
+.section-toggle {
+  border: none;
+  width: 100%;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  font-weight: 600;
 }
 
 .invoice-page .btn-primary {
@@ -143,9 +163,16 @@ body.dash-theme-light .invoice-page .btn:hover {
  *****************************************************/
 .invoice-page .collapsible {
   border: 1px solid rgba(0,0,0,0.15);
-  border-radius: 10px;
+  border-radius: 12px;
+  margin-bottom: 16px;
   margin: 12px 0;
   overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  transition: 0.2s ease;
+}
+
+.invoice-page .collapsible:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
 }
 
 .invoice-page section {
@@ -158,6 +185,8 @@ body.dash-theme-light .invoice-page .btn:hover {
   font-size: 20px;
   font-weight: 700;
 }
+
+
 
 /* DARK */
 body.dash-theme-dark .invoice-page .collapsible {
@@ -174,16 +203,7 @@ body.dash-theme-light .invoice-page canvas.signature {
   border: 1px solid rgba(0,0,0,0.18);
 }
 
-.invoice-page .section-toggle {
-  width: 100%;
-  padding: 10px 14px;
-  font-size: 15px;
-  font-weight: 600;
-  display: flex;
-  justify-content: space-between;
-  border: none;
-  cursor: pointer;
-}
+
 
 /* DARK */
 body.dash-theme-dark .invoice-page .section-toggle {
@@ -198,7 +218,8 @@ body.dash-theme-light .invoice-page .section-toggle {
 }
 
 .invoice-page .section-content {
-  overflow: visible !important;
+   display: none;
+   padding: 14px;
   
  
 }
@@ -226,15 +247,23 @@ body.dash-theme-light .invoice-page .section-toggle {
   opacity: 0.85;
 }
 
-.invoice-page input, .invoice-page select, .invoice-page textarea {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid;
+.invoice-page input,
+.invoice-page select,
+.invoice-page textarea {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.15);
   font-size: 14px;
-  transition: 0.15s ease;
+   width: 100%;
+   max-width: 100%;
 }
 
+.invoice-page input:focus,
+.invoice-page textarea:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79,70,229,0.2);
+}
 /* DARK */
 body.dash-theme-dark .invoice-page input,
 body.dash-theme-dark .invoice-page select,
@@ -263,7 +292,13 @@ body.dash-theme-light .invoice-page textarea {
   margin-top: 6px;
   table-layout: fixed;
 }
+.invoice-page .toggle-icon {
+  transition: transform 0.2s ease;
+}
 
+.section-toggle.open .toggle-icon {
+  transform: rotate(90deg);
+}
 
 
 
@@ -272,6 +307,9 @@ body.dash-theme-light .invoice-page textarea {
 .invoice-page td select {
   width: 100%;
 }
+.invoice-page td {
+  word-break: break-word;
+}
 
 .invoice-page thead th,
 .invoice-page tbody td {
@@ -279,9 +317,10 @@ body.dash-theme-light .invoice-page textarea {
 }
 @media (max-width: 768px) {
   .invoice-page table {
-    display: block;
+    display: table;
     overflow-x: auto;
-    white-space: nowrap;
+    white-space: normal;
+    font-size: 13px;
     
   }
 }
@@ -318,7 +357,7 @@ body.dash-theme-light .invoice-page thead th {
   
    pointer-events: auto !important;
   position: relative;
-  z-index: 999;
+  max-width: 100%;
   display: block;
   background: #fff;
   border: 1px solid rgba(0,0,0,0.18);
@@ -332,7 +371,7 @@ body.dash-theme-light .invoice-page thead th {
   display: flex;
   gap: 48px;
   align-items: flex-start;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   margin-top: 20px;
   position: relative;
   z-index: 0;
@@ -345,14 +384,14 @@ body.dash-theme-light .invoice-page thead th {
 }
 
 .invoice-page .invoice-content {
-  max-width: 100%;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 0 32px;
+   padding: 0;
 }
 .invoice-page .invoice-content form {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 18px;
 }
 
 @media (min-width: 1200px) {
@@ -391,7 +430,7 @@ body.dash-theme-light .invoice-page thead th {
 /*****************************************************
  *  FOOTER
  *****************************************************/
-.invoice-page footer {
+footer {
   padding: 16px;
   text-align: center;
   font-size: 13px;

@@ -939,8 +939,8 @@ useSignaturePad(clientCanvasRef, handleClientSignatureSave);
             {/* Business Info */}
             <section className="collapsible">
               <button
-            type="button"
-             className="section-toggle"
+  type="button"
+  className={`section-toggle ${openSections.business ? "open" : ""}`}
              onClick={() => toggleSection("business")}
                 >
                 <span>
@@ -1028,8 +1028,8 @@ useSignaturePad(clientCanvasRef, handleClientSignatureSave);
             {/* Client Info */}
             <section className="collapsible">
              <button
-                type="button"
-              className="section-toggle"
+  type="button"
+  className={`section-toggle ${openSections.client ? "open" : ""}`}
                onClick={() => toggleSection("client")}
                   >
                 <span>
