@@ -1230,8 +1230,7 @@ useSignaturePad(clientCanvasRef, handleClientSignatureSave);
                 <h3>{label(tInv.business, "Business")}</h3>
                 <canvas
                   ref={businessCanvasRef}
-                  width={300}
-                  height={150}
+                  
                   className="signature"
                 />
                 <button
