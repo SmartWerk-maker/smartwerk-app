@@ -150,7 +150,7 @@ const useSignaturePad = (
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       ctx.strokeStyle = "#000";
-      ctx.globalAlpha = 1.2;
+      ctx.globalAlpha = 0.8;
 
       canvas.style.touchAction = "none";
 
@@ -212,11 +212,11 @@ const move = (e: PointerEvent) => {
   const speed = distance / dt;
 
   // 🔥 товщина як у ручки
-  const minWidth = 1.2;
-  const maxWidth = 2.8;
+  const minWidth = 1.7;
+  const maxWidth = 3.2;
 
   const lineWidth = Math.max(
-    maxWidth - speed * 10,
+    maxWidth - speed * 13,
     minWidth
   );
 
@@ -1295,7 +1295,7 @@ useSignaturePad(clientCanvasRef, handleClientSignatureSave);
               <button
                 type="button"
                 id="saveBtn"
-                className="btn"
+                className="btn btn-primary"
                 onClick={handleSaveClick}
                 disabled={saving}
               >
