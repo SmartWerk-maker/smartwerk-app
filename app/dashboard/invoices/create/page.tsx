@@ -122,7 +122,12 @@ const useSignaturePad = (
   onSave: (dataUrl: string) => void
 ) => {
   useLayoutEffect(() => {
+      console.log("🔥 effect start");
+
     const canvas = canvasRef.current;
+
+     console.log("✅ canvas ready");
+
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d");
@@ -238,7 +243,7 @@ const useSignaturePad = (
       window.removeEventListener("pointerup", onPointerUp);
       window.removeEventListener("pointercancel", onPointerUp);
     };
-  }, [canvasRef, onSave]);
+  }, [canvasRef.current]);
 };
 
 export default function InvoiceCreatePage() {
