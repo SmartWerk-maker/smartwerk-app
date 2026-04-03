@@ -669,11 +669,11 @@ const useSignaturePad = (
       canvas.style.height = "150px";
 
       // ✅ стиль
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.2;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       ctx.strokeStyle = "#000";
-      ctx.globalAlpha = 0.95;
+      ctx.globalAlpha = 1.2;
 
       canvas.style.touchAction = "none";
 
@@ -712,25 +712,49 @@ const useSignaturePad = (
         ctx.moveTo(x, y);
       };
 
-      const move = (e: PointerEvent) => {
-        if (!drawing) return;
+      let lastTime = 0;
 
-        const { x, y } = getPos(e);
+const move = (e: PointerEvent) => {
+  if (!drawing) return;
 
-        // 🔥 smoothing (anti-shake)
-        smoothX += (x - smoothX) * SMOOTH;
-        smoothY += (y - smoothY) * SMOOTH;
+  const now = Date.now();
+  const dt = now - lastTime || 16;
+  lastTime = now;
 
-        // 🔥 плавна крива
-        const midX = (lastX + smoothX) / 2;
-        const midY = (lastY + smoothY) / 2;
+  const { x, y } = getPos(e);
 
-        ctx.quadraticCurveTo(lastX, lastY, midX, midY);
-        ctx.stroke();
+  // 🔥 smoothing
+  smoothX += (x - smoothX) * 0.2;
+  smoothY += (y - smoothY) * 0.2;
 
-        lastX = smoothX;
-        lastY = smoothY;
-      };
+  // 🔥 швидкість
+  const dx = smoothX - lastX;
+  const dy = smoothY - lastY;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  const speed = distance / dt;
+
+  // 🔥 товщина як у ручки
+  const minWidth = 1.2;
+  const maxWidth = 2.8;
+
+  const lineWidth = Math.max(
+    maxWidth - speed * 10,
+    minWidth
+  );
+
+  ctx.lineWidth = lineWidth;
+
+  // 🔥 крива
+  const midX = (lastX + smoothX) / 2;
+  const midY = (lastY + smoothY) / 2;
+
+  ctx.quadraticCurveTo(lastX, lastY, midX, midY);
+  ctx.stroke();
+
+  lastX = smoothX;
+  lastY = smoothY;
+};
 
       const up = () => {
         if (!drawing) return;
