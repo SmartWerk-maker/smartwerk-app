@@ -22,6 +22,8 @@ import { useTranslation } from "@/app/i18n";
 import type { FieldValue, Timestamp } from "firebase/firestore";
 import { serverTimestamp } from "firebase/firestore";
 
+import "./invoice.css";
+
 
 
 /**
@@ -116,89 +118,7 @@ interface InvoiceFirestoreMeta {
 const label = (value: string | undefined, fallback: string) =>
   value ?? fallback;
 
-const useSignaturePad = (
-  canvasRef: React.RefObject<HTMLCanvasElement | null>,
-  onSave: (dataUrl: string) => void
-) => {
-  useLayoutEffect(() => {
-    const canvas = canvasRef.current;
 
-    // 🛑 чекати поки canvas реально є
-    if (!canvas) return;
-
-    console.log("✅ canvas mounted");
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let drawing = false;
-
-    // ✅ clean canvas (важливо!)
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // ✅ стиль
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.strokeStyle = "#000";
-
-    canvas.style.touchAction = "none";
-
-    const getPos = (e: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect();
-
-      return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
-    };
-
-    const onPointerDown = (e: PointerEvent) => {
-      console.log("⬇️ DOWN");
-      drawing = true;
-
-      const { x, y } = getPos(e);
-
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-    };
-
-    const onPointerMove = (e: PointerEvent) => {
-      if (!drawing) return;
-
-      const { x, y } = getPos(e);
-
-      ctx.lineTo(x, y);
-      ctx.stroke();
-    };
-
-    const stopDrawing = () => {
-      if (!drawing) return;
-
-      console.log("⬆️ UP");
-
-      drawing = false;
-      ctx.beginPath();
-
-      onSave(canvas.toDataURL());
-    };
-
-    // ✅ listeners
-    canvas.addEventListener("pointerdown", onPointerDown);
-    canvas.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", stopDrawing);
-    window.addEventListener("pointercancel", stopDrawing);
-    canvas.addEventListener("pointerleave", stopDrawing);
-
-    return () => {
-      canvas.removeEventListener("pointerdown", onPointerDown);
-      canvas.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", stopDrawing);
-      window.removeEventListener("pointercancel", stopDrawing);
-      canvas.removeEventListener("pointerleave", stopDrawing);
-    };
-  }, [canvasRef, onSave]); // ✅ ПРАВИЛЬНО
-};
 
 export default function InvoiceCreatePage() {
   const router = useRouter();
@@ -721,7 +641,82 @@ localStorage.removeItem("editInvoiceId");
   
 
   /* ========== HOOKS ========== */
+const useSignaturePad = (
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
+  onSave: (dataUrl: string) => void
+) => {
+  useLayoutEffect(() => {
+    let raf: number;
 
+    const init = () => {
+      const canvas = canvasRef.current;
+
+      if (!canvas) {
+        raf = requestAnimationFrame(init);
+        return;
+      }
+
+      console.log("✅ canvas READY реально");
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      let drawing = false;
+
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "#000";
+
+      canvas.style.touchAction = "none";
+
+      const getPos = (e: PointerEvent) => {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        };
+      };
+
+      const down = (e: PointerEvent) => {
+        console.log("DOWN");
+        drawing = true;
+        const { x, y } = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+      };
+
+      const move = (e: PointerEvent) => {
+        if (!drawing) return;
+        const { x, y } = getPos(e);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      };
+
+      const up = () => {
+        if (!drawing) return;
+        console.log("UP");
+        drawing = false;
+        ctx.beginPath();
+        onSave(canvas.toDataURL());
+      };
+
+      canvas.addEventListener("pointerdown", down);
+      canvas.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", up);
+
+      return () => {
+        canvas.removeEventListener("pointerdown", down);
+        canvas.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+      };
+    };
+
+    raf = requestAnimationFrame(init);
+
+    return () => cancelAnimationFrame(raf);
+  }, []);
+};
   
 
   // інит даних / форми
