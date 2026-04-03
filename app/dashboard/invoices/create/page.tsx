@@ -651,15 +651,27 @@ const useSignaturePad = (
     const init = () => {
       const canvas = canvasRef.current;
 
+      
+
       if (!canvas) {
         raf = requestAnimationFrame(init);
         return;
       }
+      
 
       console.log("✅ canvas READY реально");
 
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
+      const ratio = window.devicePixelRatio || 1;
+
+      canvas.width = 320 * ratio;
+      canvas.height = 150 * ratio;
+
+      canvas.style.width = "320px";
+      canvas.style.height = "150px";
+
+ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
       let drawing = false;
 
@@ -671,12 +683,16 @@ const useSignaturePad = (
       canvas.style.touchAction = "none";
 
       const getPos = (e: PointerEvent) => {
-        const rect = canvas.getBoundingClientRect();
-        return {
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top,
-        };
-      };
+  const rect = canvas.getBoundingClientRect();
+
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+
+  return {
+    x: (e.clientX - rect.left) * scaleX,
+    y: (e.clientY - rect.top) * scaleY,
+  };
+};
 
       const down = (e: PointerEvent) => {
         console.log("DOWN");
