@@ -198,50 +198,38 @@ const useSignaturePad = (
       onSave(canvas.toDataURL());
     };
 
-    const onMouseDown = (e: MouseEvent) => {
-      const { x, y } = getPos(e.clientX, e.clientY);
-      start(x, y);
-    };
+    // ===== POINTER EVENTS =====
 
-    const onMouseMove = (e: MouseEvent) => {
-      const { x, y } = getPos(e.clientX, e.clientY);
-      move(x, y);
-    };
+const onPointerDown = (e: PointerEvent) => {
+  e.preventDefault();
+  const { x, y } = getPos(e.clientX, e.clientY);
+  drawing = true;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+};
 
-    const onTouchStart = (e: TouchEvent) => {
-      e.preventDefault();
-      const touch = e.touches[0];
-      if (!touch) return;
-      const { x, y } = getPos(touch.clientX, touch.clientY);
-      start(x, y);
-    };
+const onPointerMove = (e: PointerEvent) => {
+  if (!drawing) return;
+  const { x, y } = getPos(e.clientX, e.clientY);
+  ctx.lineTo(x, y);
+  ctx.stroke();
+};
 
-    const onTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
-      const touch = e.touches[0];
-      if (!touch) return;
-      const { x, y } = getPos(touch.clientX, touch.clientY);
-      move(x, y);
-    };
+const onPointerUp = () => {
+  if (!drawing) return;
+  drawing = false;
+  ctx.beginPath();
+  onSave(canvas.toDataURL());
+};
 
-    canvas.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", end);
-
-    canvas.addEventListener("touchstart", onTouchStart, { passive: false });
-    canvas.addEventListener("touchmove", onTouchMove, { passive: false });
-    window.addEventListener("touchend", end);
+canvas.addEventListener("pointerdown", onPointerDown);
+canvas.addEventListener("pointermove", onPointerMove);
+window.addEventListener("pointerup", onPointerUp);
 
     return () => {
-      window.removeEventListener("resize", resizeCanvas);
-
-      canvas.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", end);
-
-      canvas.removeEventListener("touchstart", onTouchStart);
-      canvas.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("touchend", end);
+      canvas.removeEventListener("pointerdown", onPointerDown);
+    canvas.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
     };
   }, [canvasRef, onSave]);
 };
@@ -1234,7 +1222,8 @@ useSignaturePad(clientCanvasRef, handleClientSignatureSave);
                 <h3>{label(tInv.business, "Business")}</h3>
                 <canvas
                   ref={businessCanvasRef}
-                  
+                  width={300}
+                  height={150}
                   className="signature"
                 />
                 <button
