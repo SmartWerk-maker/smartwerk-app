@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useLayoutEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import {
@@ -121,7 +121,7 @@ const useSignaturePad = (
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   onSave: (dataUrl: string) => void
 ) => {
-  useEffect(() => {
+  useLayoutEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -133,7 +133,10 @@ const useSignaturePad = (
 
     const setupCanvas = () => {
       const rect = canvas.getBoundingClientRect();
-      if (!rect.width || !rect.height) return null;
+      if (!rect.width || !rect.height) {
+  requestAnimationFrame(setupCanvas);
+  return;
+}
 
       const ratio = window.devicePixelRatio || 1;
 
@@ -761,7 +764,7 @@ localStorage.removeItem("editInvoiceId");
 
   // інит даних / форми
   /* eslint-disable react-hooks/exhaustive-deps */
-useEffect(() => {
+useLayoutEffect(() => {
   const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
     if (!firebaseUser) {
       setLoading(false);
@@ -1223,8 +1226,7 @@ useSignaturePad(clientCanvasRef, handleClientSignatureSave);
                 <h3>{label(tInv.business, "Business")}</h3>
                 <canvas
                   ref={businessCanvasRef}
-                  width={300}
-                  height={150}
+                  
                   className="signature"
                 />
                 <button
@@ -1243,8 +1245,7 @@ useSignaturePad(clientCanvasRef, handleClientSignatureSave);
                 <h3>{label(tInv.client, "Client")}</h3>
                 <canvas
                   ref={clientCanvasRef}
-                  width={300}
-                  height={150}
+                  
                  className="signature"
                     />
                 <button
