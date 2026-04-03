@@ -669,18 +669,24 @@ const useSignaturePad = (
       canvas.style.height = "150px";
 
       // ✅ стиль
-      ctx.lineWidth = 2.2;
+      ctx.lineWidth = 2;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       ctx.strokeStyle = "#000";
+      ctx.globalAlpha = 0.95;
 
       canvas.style.touchAction = "none";
 
       let drawing = false;
 
-      // ✅ ВАЖЛИВО
+      // 🔥 координати
       let lastX = 0;
       let lastY = 0;
+
+      let smoothX = 0;
+      let smoothY = 0;
+
+      const SMOOTH = 0.2;
 
       const getPos = (e: PointerEvent) => {
         const rect = canvas.getBoundingClientRect();
@@ -699,6 +705,9 @@ const useSignaturePad = (
         lastX = x;
         lastY = y;
 
+        smoothX = x;
+        smoothY = y;
+
         ctx.beginPath();
         ctx.moveTo(x, y);
       };
@@ -708,15 +717,19 @@ const useSignaturePad = (
 
         const { x, y } = getPos(e);
 
-        // ✨ SMOOTHING (Bezier)
-        const midX = (lastX + x) / 2;
-        const midY = (lastY + y) / 2;
+        // 🔥 smoothing (anti-shake)
+        smoothX += (x - smoothX) * SMOOTH;
+        smoothY += (y - smoothY) * SMOOTH;
+
+        // 🔥 плавна крива
+        const midX = (lastX + smoothX) / 2;
+        const midY = (lastY + smoothY) / 2;
 
         ctx.quadraticCurveTo(lastX, lastY, midX, midY);
         ctx.stroke();
 
-        lastX = x;
-        lastY = y;
+        lastX = smoothX;
+        lastY = smoothY;
       };
 
       const up = () => {
@@ -747,7 +760,7 @@ const useSignaturePad = (
     raf = requestAnimationFrame(init);
 
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [canvasRef, onSave]);
 };
   
 
