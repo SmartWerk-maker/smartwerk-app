@@ -314,9 +314,8 @@ body.dash-theme-light .invoice-page thead th {
  *  SIGNATURES (clean compact)
  *****************************************************/
 .invoice-page canvas.signature {
-  width: 100%;
-  max-width: 320px;
-  height: 150px;
+  
+  
   display: block;
   background: #fff;
   border: 1px solid rgba(0,0,0,0.18);

@@ -121,129 +121,86 @@ const useSignaturePad = (
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   onSave: (dataUrl: string) => void
 ) => {
+  
+
   useLayoutEffect(() => {
-      console.log("🔥 effect start");
+  console.log("🔥 effect start");
 
-    const canvas = canvasRef.current;
+  const canvas = canvasRef.current;
+  if (!canvas) return;
 
-     console.log("✅ canvas ready");
+  console.log("✅ canvas ready");
 
-    if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+  let drawing = false;
 
-    let drawing = false;
-    let savedImage: string | null = null;
+  // ✅ базові налаштування
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "#000";
 
-    const setupCanvas = () => {
-      const rect = canvas.getBoundingClientRect();
+  // ❗ ВАЖЛИВО: фіксований розмір canvas
+  canvas.width = 320;
+  canvas.height = 150;
 
-        console.log("👉 canvas rect:", rect.width, rect.height);
+  canvas.style.touchAction = "none";
 
-      if (!rect.width || !rect.height) {
-  requestAnimationFrame(setupCanvas);
-  return;
-}
+  const getPos = (clientX: number, clientY: number) => {
+    const rect = canvas.getBoundingClientRect();
 
-      const ratio = window.devicePixelRatio || 1;
-
-      const data = canvas.toDataURL();
-      savedImage = data !== "data:," ? data : null;
-
-      canvas.width = rect.width * ratio;
-      canvas.height = rect.height * ratio;
-
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
-
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-
-      ctx.lineWidth = 2.5;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.strokeStyle = "#000";
-
-      if (savedImage) {
-        const img = new Image();
-        img.onload = () => {
-          ctx.drawImage(img, 0, 0, rect.width, rect.height);
-        };
-        img.src = savedImage;
-      }
-
-      return rect;
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top,
     };
-
-    setupCanvas();
-    window.addEventListener("resize", setupCanvas);
-
-    canvas.style.touchAction = "none";
-
-    const getPos = (clientX: number, clientY: number) => {
-  const rect = canvas.getBoundingClientRect();
-
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-
-  return {
-    x: (clientX - rect.left) * scaleX,
-    y: (clientY - rect.top) * scaleY,
   };
-};
 
-    const start = (x: number, y: number) => {
-      drawing = true;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-    };
+  const start = (x: number, y: number) => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
 
-    const move = (x: number, y: number) => {
-      if (!drawing) return;
-      ctx.lineTo(x, y);
-      ctx.stroke();
-    };
+  const move = (x: number, y: number) => {
+    if (!drawing) return;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
 
-    const end = () => {
-      if (!drawing) return;
-      drawing = false;
-      ctx.beginPath();
-      onSave(canvas.toDataURL());
-    };
+  const end = () => {
+    if (!drawing) return;
+    drawing = false;
+    ctx.beginPath();
+    onSave(canvas.toDataURL());
+  };
 
-    const onPointerDown = (e: PointerEvent) => {
-      e.preventDefault();
-      const { x, y } = getPos(e.clientX, e.clientY);
-      start(x, y);
-    };
+  const onPointerDown = (e: PointerEvent) => {
+    e.preventDefault();
+    const { x, y } = getPos(e.clientX, e.clientY);
+    start(x, y);
+  };
 
-    const onPointerMove = (e: PointerEvent) => {
-      if (!drawing) return;
-      e.preventDefault();
-      const { x, y } = getPos(e.clientX, e.clientY);
-      move(x, y);
-    };
+  const onPointerMove = (e: PointerEvent) => {
+    if (!drawing) return;
+    e.preventDefault();
+    const { x, y } = getPos(e.clientX, e.clientY);
+    move(x, y);
+  };
 
-    const onPointerUp = () => {
-      end();
-    };
+  const onPointerUp = () => end();
 
-    canvas.addEventListener("pointerdown", onPointerDown);
-    canvas.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", onPointerUp);
-    window.addEventListener("pointercancel", onPointerUp);
+  canvas.addEventListener("pointerdown", onPointerDown);
+  canvas.addEventListener("pointermove", onPointerMove);
+  window.addEventListener("pointerup", onPointerUp);
 
-    return () => {
-      window.removeEventListener("resize", setupCanvas);
-
-      canvas.removeEventListener("pointerdown", onPointerDown);
-      canvas.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", onPointerUp);
-      window.removeEventListener("pointercancel", onPointerUp);
-    };
-  }, [canvasRef.current]);
+  return () => {
+    canvas.removeEventListener("pointerdown", onPointerDown);
+    canvas.removeEventListener("pointermove", onPointerMove);
+    window.removeEventListener("pointerup", onPointerUp);
+  };
+}, []);
 };
 
 export default function InvoiceCreatePage() {
@@ -1234,7 +1191,8 @@ useSignaturePad(clientCanvasRef, handleClientSignatureSave);
                 <h3>{label(tInv.business, "Business")}</h3>
                 <canvas
                   ref={businessCanvasRef}
-                  
+                  width={320}
+                  height={150}
                   className="signature"
                 />
                 <button
@@ -1253,7 +1211,9 @@ useSignaturePad(clientCanvasRef, handleClientSignatureSave);
                 <h3>{label(tInv.client, "Client")}</h3>
                 <canvas
                   ref={clientCanvasRef}
-                  
+                    width={320}
+
+                  height={150}
                  className="signature"
                     />
                 <button
@@ -1298,5 +1258,6 @@ useSignaturePad(clientCanvasRef, handleClientSignatureSave);
     </>
   );
 }
+
 
 
