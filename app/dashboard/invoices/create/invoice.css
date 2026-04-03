@@ -370,6 +370,8 @@ body.dash-theme-light .invoice-page thead th {
   position: relative;
   z-index: 1;
   pointer-events: auto;
+    width: 100%;
+
   }
 
 .invoice-page .signature-box button {

@@ -133,6 +133,9 @@ const useSignaturePad = (
 
     const setupCanvas = () => {
       const rect = canvas.getBoundingClientRect();
+
+        console.log("👉 canvas rect:", rect.width, rect.height);
+
       if (!rect.width || !rect.height) {
   requestAnimationFrame(setupCanvas);
   return;
