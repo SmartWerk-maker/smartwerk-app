@@ -35,7 +35,7 @@ import "./invoice.css";
 // ===== TYPES =====
 
 interface InvoiceItem {
-  
+  id: string;
   desc: string;
   qty: number;
   price: number;
@@ -122,8 +122,13 @@ export default function InvoiceCreatePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const generateId = () =>
+  typeof crypto !== "undefined" && crypto.randomUUID
+    ? crypto.randomUUID()
+    : Math.random().toString(36).substring(2);
+
   const [itemsState, setItemsState] = useState<InvoiceItem[]>([
-  { desc: "", qty: 1, price: 0, vat: 21 }
+  { id: generateId(), desc: "", qty: 1, price: 0, vat: 21 }
 ]);
   const [saving, setSaving] = useState(false);
 
@@ -200,10 +205,12 @@ const [signatures, setSignatures] = useState({
 
   /* ========== ITEMS & TOTALS ========== */
 
+  
+
 const addItem = () => {
   setItemsState((prev) => [
     ...prev,
-    { desc: "", qty: 1, price: 0, vat: 21 }
+    { id: generateId(), desc: "", qty: 1, price: 0, vat: 21 }
   ]);
 };
 
@@ -218,7 +225,15 @@ const updateItem = (
 ) => {
   setItemsState((prev) => {
     const copy = [...prev];
-    copy[index] = { ...copy[index], [field]: value };
+    copy[index] = {
+  ...copy[index],
+  [field]:
+  field === "desc"
+    ? value
+    : value === ""
+      ? 0
+      : Number(value)
+};
     return copy;
   });
 };
@@ -344,8 +359,9 @@ const updateItem = (
     const ref = doc(db, "users", uid, "invoices", id);
     const snap = await getDoc(ref);
     if (!snap.exists()) {
-      localStorage.removeItem("editInvoiceId");
+      
       localStorage.removeItem("invoiceClientId");
+      localStorage.removeItem("editInvoiceId");
       return;
     }
     const inv = snap.data() as InvoiceData & {
@@ -378,9 +394,14 @@ const updateItem = (
 });
    
     if (inv.items && inv.items.length > 0) {
-  setItemsState(inv.items);
+  setItemsState(
+  inv.items.map((item) => ({
+    ...item,
+    id: item.id || generateId()
+  }))
+);
 } else {
-  setItemsState([{ desc: "", qty: 1, price: 0, vat: 21 }]);
+  setItemsState([{ id: generateId(), desc: "", qty: 1, price: 0, vat: 21 }]);
 }
 
    if (inv.signatures) {
@@ -586,6 +607,7 @@ note: form.note,
       );
     }
 localStorage.removeItem("invoiceClientId");
+localStorage.removeItem("editInvoiceId");
     
 
     try {
@@ -631,14 +653,17 @@ useEffect(() => {
 
    
     
-      await previewNextInvoiceNumber(firebaseUser.uid);
-      await loadProfileData(firebaseUser.uid, firebaseUser.email);
-      await loadForEdit(firebaseUser.uid);
+      
+      const editInvoiceId = localStorage.getItem("editInvoiceId");
 
-if (!localStorage.getItem("editInvoiceId")) {
-  await previewNextInvoiceNumber(firebaseUser.uid);
-}
-      autofillClientFromLocalStorage();
+      if (editInvoiceId) {
+       await loadForEdit(firebaseUser.uid);
+        }        else {
+         await previewNextInvoiceNumber(firebaseUser.uid);
+       autofillClientFromLocalStorage();
+        }
+
+await loadProfileData(firebaseUser.uid, firebaseUser.email);
    
 
     setLoading(false);
@@ -650,40 +675,46 @@ if (!localStorage.getItem("editInvoiceId")) {
 
   // ініціалізація підписів після того, як DOM готовий
   
-
-   useEffect(() => {
+useEffect(() => {
   const canvas = businessCanvasRef.current;
   if (!canvas) return;
 
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
+  // 🔥 важливо для mobile
+  canvas.style.touchAction = "none";
+
+  // 🔥 стиль лінії (було головною причиною що не малює)
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#000";
+
   let drawing = false;
 
+  // ===== HELPERS =====
+  const getPos = (clientX: number, clientY: number) => {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top,
+    };
+  };
+
+  // ===== MOUSE =====
   const start = (e: MouseEvent) => {
-  drawing = true;
-
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  
-};
+    drawing = true;
+    const { x, y } = getPos(e.clientX, e.clientY);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
 
   const move = (e: MouseEvent) => {
-  if (!drawing) return;
-
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-
-  ctx.lineTo(x, y);
-  ctx.stroke();
-
-  
-};
+    if (!drawing) return;
+    const { x, y } = getPos(e.clientX, e.clientY);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
 
   const end = () => {
     if (!drawing) return;
@@ -693,111 +724,7 @@ if (!localStorage.getItem("editInvoiceId")) {
     setSignatures((prev) => ({
       ...prev,
       businessDate: new Date().toLocaleDateString("nl-NL"),
-      business: canvas.toDataURL()
-    }));
-  };
-
-  canvas.addEventListener("mousedown", start);
-  canvas.addEventListener("mousemove", move);
-  window.addEventListener("mouseup", end);
-
-  const startTouch = (e: TouchEvent) => {
-  e.preventDefault();
-  drawing = true;
-
-  const rect = canvas.getBoundingClientRect();
-  const touch = e.touches[0];
-
-  const x = touch.clientX - rect.left;
-  const y = touch.clientY - rect.top;
-
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-};
-
-const moveTouch = (e: TouchEvent) => {
-  if (!drawing) return;
-
-  const rect = canvas.getBoundingClientRect();
-  const touch = e.touches[0];
-
-  const x = touch.clientX - rect.left;
-  const y = touch.clientY - rect.top;
-
-  ctx.lineTo(x, y);
-  ctx.stroke();
-  ctx.lineWidth = 2;
-ctx.lineCap = "round";
-ctx.strokeStyle = "#000";
-};
-
-const endTouch = () => {
-  if (!drawing) return;
-  drawing = false;
-
-  setSignatures((prev) => ({
-    ...prev,
-    businessDate: new Date().toLocaleDateString("nl-NL"),
-    business: canvas.toDataURL()
-  }));
-};
-
-canvas.addEventListener("touchstart", startTouch);
-canvas.addEventListener("touchmove", moveTouch);
-window.addEventListener("touchend", endTouch);
-
- return () => {
-  canvas.removeEventListener("mousedown", start);
-  canvas.removeEventListener("mousemove", move);
-  window.removeEventListener("mouseup", end);
-
-  canvas.removeEventListener("touchstart", startTouch);
-  canvas.removeEventListener("touchmove", moveTouch);
-  window.removeEventListener("touchend", endTouch);
-};
-}, []);
-
-
-useEffect(() => {
-  const canvas = clientCanvasRef.current;
-  if (!canvas) return;
-
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-
-  let drawing = false;
-
-  // ===== MOUSE =====
-  const start = (e: MouseEvent) => {
-    drawing = true;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-  };
-
-  const move = (e: MouseEvent) => {
-    if (!drawing) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
-
-  const end = () => {
-    if (!drawing) return;
-    drawing = false;
-
-    setSignatures((prev) => ({
-      ...prev,
-      clientDate: new Date().toLocaleDateString("nl-NL"),
-      client: canvas.toDataURL()
+      business: canvas.toDataURL(),
     }));
   };
 
@@ -806,11 +733,8 @@ useEffect(() => {
     e.preventDefault();
     drawing = true;
 
-    const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
-
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
+    const { x, y } = getPos(touch.clientX, touch.clientY);
 
     ctx.beginPath();
     ctx.moveTo(x, y);
@@ -819,31 +743,26 @@ useEffect(() => {
   const moveTouch = (e: TouchEvent) => {
     if (!drawing) return;
 
-    const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
-
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
+    const { x, y } = getPos(touch.clientX, touch.clientY);
 
     ctx.lineTo(x, y);
     ctx.stroke();
-    ctx.lineWidth = 2;
-ctx.lineCap = "round";
-ctx.strokeStyle = "#000";
   };
 
   const endTouch = () => {
     if (!drawing) return;
     drawing = false;
+    ctx.beginPath();
 
     setSignatures((prev) => ({
       ...prev,
-      clientDate: new Date().toLocaleDateString("nl-NL"),
-      client: canvas.toDataURL()
+      businessDate: new Date().toLocaleDateString("nl-NL"),
+      business: canvas.toDataURL(),
     }));
   };
 
-  // ===== ADD LISTENERS =====
+  // ===== LISTENERS =====
   canvas.addEventListener("mousedown", start);
   canvas.addEventListener("mousemove", move);
   window.addEventListener("mouseup", end);
@@ -863,6 +782,111 @@ ctx.strokeStyle = "#000";
     window.removeEventListener("touchend", endTouch);
   };
 }, []);
+
+useEffect(() => {
+  const canvas = clientCanvasRef.current;
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  canvas.style.touchAction = "none";
+
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#000";
+
+  let drawing = false;
+
+  const getPos = (clientX: number, clientY: number) => {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top,
+    };
+  };
+
+  // ===== MOUSE =====
+  const start = (e: MouseEvent) => {
+    drawing = true;
+    const { x, y } = getPos(e.clientX, e.clientY);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+
+  const move = (e: MouseEvent) => {
+    if (!drawing) return;
+    const { x, y } = getPos(e.clientX, e.clientY);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const end = () => {
+    if (!drawing) return;
+    drawing = false;
+    ctx.beginPath();
+
+    setSignatures((prev) => ({
+      ...prev,
+      clientDate: new Date().toLocaleDateString("nl-NL"),
+      client: canvas.toDataURL(),
+    }));
+  };
+
+  // ===== TOUCH =====
+  const startTouch = (e: TouchEvent) => {
+    e.preventDefault();
+    drawing = true;
+
+    const touch = e.touches[0];
+    const { x, y } = getPos(touch.clientX, touch.clientY);
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+
+  const moveTouch = (e: TouchEvent) => {
+    if (!drawing) return;
+
+    const touch = e.touches[0];
+    const { x, y } = getPos(touch.clientX, touch.clientY);
+
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const endTouch = () => {
+    if (!drawing) return;
+    drawing = false;
+    ctx.beginPath();
+
+    setSignatures((prev) => ({
+      ...prev,
+      clientDate: new Date().toLocaleDateString("nl-NL"),
+      client: canvas.toDataURL(),
+    }));
+  };
+
+  // ===== LISTENERS =====
+  canvas.addEventListener("mousedown", start);
+  canvas.addEventListener("mousemove", move);
+  window.addEventListener("mouseup", end);
+
+  canvas.addEventListener("touchstart", startTouch);
+  canvas.addEventListener("touchmove", moveTouch);
+  window.addEventListener("touchend", endTouch);
+
+  return () => {
+    canvas.removeEventListener("mousedown", start);
+    canvas.removeEventListener("mousemove", move);
+    window.removeEventListener("mouseup", end);
+
+    canvas.removeEventListener("touchstart", startTouch);
+    canvas.removeEventListener("touchmove", moveTouch);
+    window.removeEventListener("touchend", endTouch);
+  };
+}, []);
+
 
 
 useEffect(() => {
@@ -932,7 +956,7 @@ useEffect(() => {
   const handleGoToList = () =>
     router.push("/dashboard/invoices/list");
 
-  if (!user && loading) {
+  if (loading) {
     return (
       <div className="clients-loading">
         <div className="clients-loading-card">Loading invoice…</div>
@@ -1190,7 +1214,7 @@ useEffect(() => {
     const vat = (line * item.vat) / 100;
 
     return (
-      <tr key={`${i}-${item.desc}-${item.price}`}>
+      <tr key={item.id}>
         <td>
           <input
             value={item.desc}
@@ -1205,7 +1229,7 @@ useEffect(() => {
             type="number"
             value={item.qty}
             onChange={(e) =>
-              updateItem(i, "qty", Number(e.target.value) || 0)
+              updateItem(i, "qty", e.target.value === "" ? 0 : Number(e.target.value))
             }
           />
         </td>
@@ -1215,7 +1239,8 @@ useEffect(() => {
             type="number"
             value={item.price}
             onChange={(e) =>
-              updateItem(i, "price", Number(e.target.value) || 0)
+              updateItem(i, "price", e.target.value === "" ? 0 : Number(e.target.value)
+              )
             }
           />
         </td>
